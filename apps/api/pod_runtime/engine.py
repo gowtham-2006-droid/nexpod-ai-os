@@ -92,6 +92,47 @@ class PodRuntimeEngine:
             raise ValueError("limit must be at least 1")
         return tuple(reversed(self._orders[-limit:]))
 
+    def place_order(self, pod_id: str, sku: str, quantity: int = 1) -> Order:
+        """Runtime command used by backend APIs; inventory and revenue change together."""
+        if quantity < 1:
+            raise ValueError("quantity must be at least 1")
+        pod = self._pods.get(pod_id)
+        if not pod:
+            raise KeyError(f"Unknown pod: {pod_id}")
+        item = pod.inventory.get(sku)
+        if not item:
+            raise KeyError(f"Unknown SKU: {sku}")
+        if item.quantity < quantity:
+            raise ValueError(f"Insufficient stock for {sku}")
+        pod.inventory[sku] = InventoryItem(**{**item.__dict__, "quantity": item.quantity - quantity})
+        order = Order(str(uuid.uuid4()), pod_id, self._now, ((sku, quantity),), item.unit_price_inr * quantity)
+        self._orders.append(order)
+        self._revenue_inr += order.total_inr
+        self._emit(EventType.ORDER_CREATED, pod_id, {"order_id": order.id, "total_inr": order.total_inr, "currency": "INR", "sku": sku})
+        self._evaluate_alerts(pod)
+        return order
+
+    def replenish_inventory(self, pod_id: str, sku: str | None = None) -> PodSnapshot:
+        """Refill pod inventory levels back to maximum capacity."""
+        pod = self._pods.get(pod_id)
+        if not pod:
+            raise KeyError(f"Unknown pod: {pod_id}")
+        if sku:
+            item = pod.inventory.get(sku)
+            if not item:
+                sku = None
+        
+        if sku:
+            pod.inventory[sku] = InventoryItem(**{**item.__dict__, "quantity": item.capacity})
+            self._resolve_alert(pod_id, f"inventory:{sku}")
+        else:
+            for item_sku, item in list(pod.inventory.items()):
+                pod.inventory[item_sku] = InventoryItem(**{**item.__dict__, "quantity": item.capacity})
+                self._resolve_alert(pod_id, f"inventory:{item_sku}")
+        
+        self._evaluate_alerts(pod)
+        return self._pod_snapshot(pod)
+
     def _maybe_generate_order(self, pod: _PodState) -> None:
         if pod.health.score < 35:
             return

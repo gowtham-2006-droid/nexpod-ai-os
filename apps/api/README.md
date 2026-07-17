@@ -18,7 +18,7 @@ py demo.py
 ```powershell
 py -m pip install -r requirements.txt
 $env:SUPABASE_DB_URL = "postgresql://..."
-py -m uvicorn app:app --reload
+py -m uvicorn backend.app.main:app --reload
 ```
 
 The runtime remains the source of truth. Each `POST /api/v1/simulation/tick` advances it and writes one durable snapshot transaction to PostgreSQL. Read endpoints always query the current runtime state, not a potentially stale database projection.
