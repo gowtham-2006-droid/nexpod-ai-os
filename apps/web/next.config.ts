@@ -4,7 +4,12 @@ const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
   async rewrites() {
-    const backendUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000').replace(/\/$/, '');
+    let backendUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000').trim();
+    if (!backendUrl.startsWith('http://') && !backendUrl.startsWith('https://')) {
+      backendUrl = `https://${backendUrl}`;
+    }
+    backendUrl = backendUrl.replace(/\/$/, '');
+    
     return [
       {
         source: '/api/:path*',
