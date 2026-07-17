@@ -2,22 +2,75 @@
 
 A modern, AI-powered Operating System designed for monitoring, managing, and interacting with a fleet of autonomous, self-service retail pods (starting with automated coffee/tea brewing kiosks).
 
-This repository is organized as a monorepo containing a high-performance Python backend (API, database, and AI engines) and a stunning Next.js-based web frontend (operator dashboard and customer portal) with support for full dark/light themes, real-time telemetry simulation, and predictive maintenance dispatch.
+This repository is organized as a monorepo containing a high-performance Python backend (API, database, and AI engines) and a digital twin Web Frontend (operator dashboard and customer portal) with support for full dark/light themes, real-time telemetry simulation, and predictive maintenance dispatch.
 
 ---
 
 ## 📂 Repository Structure
 
 ```text
+nexpod-ai-os/
 ├── apps/
-│   ├── api/          # Backend (FastAPI, Uvicorn, Supabase, AI/Gemini integrations)
-│   └── web/          # Frontend (Next.js, Tailwind CSS, Framer Motion)
-├── docs/             # Architecture, design guidelines, and product documentation
-└── packages/         # Shared libraries, UI components, and configs
+│   ├── api/                      # Backend Service (FastAPI, Uvicorn, Supabase, AI/Gemini)
+│   │   ├── backend/
+│   │   │   └── app/              # FastAPI Application
+│   │   │       ├── api/          # Route handlers & controllers
+│   │   │       ├── core/         # Config & security settings
+│   │   │       ├── database/     # Database connections & session management
+│   │   │       ├── models/       # Database models / schemas
+│   │   │       ├── repositories/ # Database query operations
+│   │   │       ├── schemas/      # Pydantic schemas (request/response validation)
+│   │   │       └── services/     # Business logic & AI orchestration (Gemini)
+│   │   ├── rural_runtime/        # IoT edge runtime & hardware simulator
+│   │   │   ├── api.py            # Local agent server endpoint
+│   │   │   ├── engine.py         # Hardware telemetry loop & physical state
+│   │   │   ├── models.py         # State & configuration models
+│   │   │   └── persistence.py    # Local state persistence layer
+│   │   ├── supabase/             # Database migration and setup scripts
+│   │   ├── tests/                # Test suites for APIs and AI features
+│   │   ├── app.py                # Main backend app bootstrapper
+│   │   ├── demo.py               # Local command-line simulator demo
+│   │   └── requirements.txt      # Python dependencies list
+│   │
+│   └── web/                      # Frontend Dashboard (Next.js, Tailwind CSS, Framer Motion)
+│       ├── public/               # Public assets (images, logos, mockups)
+│       ├── src/
+│       │   ├── app/              # Next.js App Router structure (pages, layouts)
+│       │   │   ├── customer/     # Customer ordering portal
+│       │   │   ├── dashboard/    # Fleet operator dashboard (Mission Control)
+│       │   │   ├── diagnostics/  # Remote system diagnostics interface
+│       │   │   ├── intelligence/ # AI-driven analytics & predictions page
+│       │   │   ├── inventory/    # Stock levels and inventory management
+│       │   │   ├── orders/       # Order tracking and logs
+│       │   │   ├── settings/     # Admin settings & checkouts
+│       │   │   ├── telemetry/    # Real-time sensor telemetry dashboard
+│       │   │   ├── globals.css   # Main stylesheet containing global styles and theme tokens
+│       │   │   └── layout.tsx    # Root layout & Theme provider
+│       │   ├── components/       # Custom React components & UI building blocks
+│       │   │   ├── ui/           # Shared reusable components (buttons, input, etc.)
+│       │   │   │   ├── skiper-ui/ # Specialized UI components
+│       │   │   │   └── ...           # Various UI elements (Accordions, Tooltips, Sparks, etc.)
+│       │   │   ├── customer/     # Customer portal specific sub-components
+│       │   │   ├── ...           # Main dashboard sub-sections (Charts, Tables, etc.)
+│       │   │   ├── SdkSandbox.tsx          # Interactive Sandbox Console code panel
+│       │   │   ├── DeveloperDocs.tsx       # Embedded interactive documentation viewer
+│       │   │   └── CapabilitiesConsole.tsx # Interactive IoT device control dashboard
+│       │   ├── data/             # Mock datasets for local development
+│       │   ├── hooks/            # Custom React hooks (usePolling, useLiveClock)
+│       │   ├── lib/              # Client utilities & shared helpers (api client, logger)
+│       │   └── types/            # TypeScript type definitions
+│       │
+│       ├── package.json          # Frontend dependency and scripts definition
+│       └── tsconfig.json         # TypeScript configuration
+│
+├── docs/                         # General project and architectural documentation
+│   └── ARCHITECTURE.md           # System design, layout flow, and team boundaries
+│
+└── packages/                     # Shared workspaces (internal shared packages)
+    ├── config/                   # Shared eslint, tsconfig, styling configs
+    ├── shared/                   # Cross-application shared types and utilities
+    └── ui/                       # Shared React component library
 ```
-
-- **Frontend (web)**: A premium Next.js dashboard featuring real-time telemetry, inventory tracking, predictive maintenance alerts, an interactive customer ordering terminal, and full light/dark mode support.
-- **Backend (api)**: A robust Python FastAPI service providing state management, mock database schemas, and AI-driven predictive logistics using LLMs.
 
 ---
 
