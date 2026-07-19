@@ -44,6 +44,15 @@ class RuntimeService:
             snapshot = self.engine.tick(minutes)
             self.ticks_count += minutes
             self.last_tick = datetime.now(timezone.utc)
+            
+            # If AI auto-reorder is enabled, check for low inventory and replenish
+            if self.settings.get("ai_auto_reorder"):
+                for pod in snapshot.pods:
+                    for item in pod.inventory:
+                        if item.quantity <= item.reorder_point:
+                            self.engine.replenish_inventory(pod.id, item.sku)
+                snapshot = self.engine.get_snapshot()
+                
         self._persist(snapshot)
         return snapshot
 
@@ -51,6 +60,15 @@ class RuntimeService:
         with self._lock:
             order = self.engine.place_order(pod_id, sku, quantity)
             snapshot = self.engine.get_snapshot()
+            
+            # If AI auto-reorder is enabled, check for low inventory and replenish
+            if self.settings.get("ai_auto_reorder"):
+                for pod in snapshot.pods:
+                    for item in pod.inventory:
+                        if item.quantity <= item.reorder_point:
+                            self.engine.replenish_inventory(pod.id, item.sku)
+                snapshot = self.engine.get_snapshot()
+                
         self._persist(snapshot)
         return order
 

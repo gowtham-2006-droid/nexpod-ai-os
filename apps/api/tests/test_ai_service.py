@@ -120,8 +120,8 @@ def test_get_insight_success_first_attempt(mock_settings, mock_runtime):
         assert insight["cacheStatus"] == "MISS"
         
         mock_post.assert_called_once()
-        # Verify 10-second timeout was requested
-        assert mock_post.call_args[1]["timeout"] == 10.0
+        # Verify 3-second timeout was requested
+        assert mock_post.call_args[1]["timeout"] == 3.0
 
 
 def test_get_insight_retry_on_http_error_then_success(mock_settings, mock_runtime):

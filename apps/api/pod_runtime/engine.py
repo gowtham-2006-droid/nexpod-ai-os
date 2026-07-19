@@ -13,6 +13,16 @@ from .models import (
 
 EventListener = Callable[[RuntimeEvent], None]
 
+_CUSTOMER_NAMES = (
+    "Aarav Sharma", "Aditya Rao", "Amit Saxena", "Ananya Sen", "Arjun Verma",
+    "Dev Malhotra", "Ishaan Patel", "Kabir Gupta", "Neha Patel", "Pooja Hegde",
+    "Priya Sharma", "Rahul Kapoor", "Rohan Gupta", "Siddharth Malhotra", "Sneha Nair",
+    "Varun Dhawan", "Vikram Malhotra", "Karan Johar", "Aditi Rao", "Rajesh Kumar"
+)
+_PAYMENT_METHODS = ("UPI", "Card", "Cash")
+_STATUS_OPTIONS = ("completed", "completed", "completed", "completed", "preparing", "pending")
+
+
 
 @dataclass(frozen=True)
 class SimulationConfig:
@@ -105,7 +115,13 @@ class PodRuntimeEngine:
         if item.quantity < quantity:
             raise ValueError(f"Insufficient stock for {sku}")
         pod.inventory[sku] = InventoryItem(**{**item.__dict__, "quantity": item.quantity - quantity})
-        order = Order(str(uuid.uuid4()), pod_id, self._now, ((sku, quantity),), item.unit_price_inr * quantity)
+        customer = self._rng.choice(_CUSTOMER_NAMES)
+        payment = self._rng.choice(_PAYMENT_METHODS)
+        status = self._rng.choice(_STATUS_OPTIONS)
+        order = Order(
+            str(uuid.uuid4()), pod_id, self._now, ((sku, quantity),), 
+            item.unit_price_inr * quantity, customer, status, payment
+        )
         self._orders.append(order)
         self._revenue_inr += order.total_inr
         self._emit(EventType.ORDER_CREATED, pod_id, {"order_id": order.id, "total_inr": order.total_inr, "currency": "INR", "sku": sku})
@@ -145,7 +161,13 @@ class PodRuntimeEngine:
                 return
             item = self._rng.choice(available)
             pod.inventory[item.sku] = InventoryItem(**{**item.__dict__, "quantity": item.quantity - 1})
-            order = Order(str(uuid.uuid4()), pod.id, self._now, ((item.sku, 1),), item.unit_price_inr)
+            customer = self._rng.choice(_CUSTOMER_NAMES)
+            payment = self._rng.choice(_PAYMENT_METHODS)
+            status = self._rng.choice(_STATUS_OPTIONS)
+            order = Order(
+                str(uuid.uuid4()), pod.id, self._now, ((item.sku, 1),), 
+                item.unit_price_inr, customer, status, payment
+            )
             self._orders.append(order)
             self._revenue_inr += order.total_inr
             self._emit(EventType.ORDER_CREATED, pod.id, {"order_id": order.id, "total_inr": order.total_inr, "currency": "INR", "sku": item.sku})

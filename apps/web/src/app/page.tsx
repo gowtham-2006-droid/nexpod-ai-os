@@ -285,23 +285,24 @@ export default function LandingPage() {
       {/* Hero Video Dialog Container */}
       <AnimatePresence>
         {showVideoModal && (
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[100000] flex min-h-screen items-center justify-center p-4">
             <div
-              className="absolute inset-0 bg-black/85 backdrop-blur-md"
+              className="absolute inset-0 bg-black/100 backdrop-blur-md z-[100001]"
               onClick={() => setShowVideoModal(false)}
             />
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="relative w-full max-w-4xl bg-boxdark border border-strokedark rounded-3xl overflow-hidden aspect-video z-10 shadow-2xl"
+              className="relative w-full max-w-6xl bg-boxdark border border-strokedark rounded-3xl overflow-hidden aspect-video z-[100002] shadow-2xl"
             >
               <button
                 onClick={() => setShowVideoModal(false)}
-                className="absolute top-4 right-4 h-8 w-8 rounded-full bg-black/40 hover:bg-black/80 border border-strokedark flex items-center justify-center text-white hover:text-primary transition-colors cursor-pointer z-20"
+                className="absolute bottom-4 right-4 h-8 w-8 rounded-full bg-black/40 hover:bg-black/80 border border-strokedark flex items-center justify-center text-white hover:text-primary transition-colors cursor-pointer z-20"
               >
                 ✕
               </button>
+
               <iframe
                 src="https://www.youtube.com/embed/dQw4w9WgXcQ"
                 title="NexPod Product Video Demo"

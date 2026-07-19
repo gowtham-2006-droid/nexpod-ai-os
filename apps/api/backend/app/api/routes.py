@@ -11,12 +11,24 @@ def dashboard(): return runtime_service.dashboard()
 
 @router.get("/orders")
 def orders(limit: int = Query(100, ge=1, le=500)):
-    return {"currency": "INR", "orders": jsonable_encoder([asdict(order) for order in runtime_service.orders(limit)])}
+    orders_data = []
+    for order in runtime_service.orders(limit):
+        d = asdict(order)
+        d["lines"] = {
+            "items": [{"sku": sku, "quantity": qty} for sku, qty in order.lines]
+        }
+        orders_data.append(d)
+    return {"currency": "INR", "orders": jsonable_encoder(orders_data)}
 
 @router.post("/orders", status_code=201)
 def create_order(request: CreateOrderRequest):
     try:
-        return jsonable_encoder(asdict(runtime_service.create_order(request.pod_id, request.sku, request.quantity)))
+        order = runtime_service.create_order(request.pod_id, request.sku, request.quantity)
+        d = asdict(order)
+        d["lines"] = {
+            "items": [{"sku": sku, "quantity": qty} for sku, qty in order.lines]
+        }
+        return jsonable_encoder(d)
     except KeyError as exc:
         raise HTTPException(404, str(exc)) from exc
     except ValueError as exc:
@@ -38,7 +50,16 @@ def inventory():
 
 @router.get("/machine")
 def machine():
-    return jsonable_encoder([{"pod_id": pod.id, "status": pod.status, "health": asdict(pod.health)} for pod in runtime_service.snapshot().pods])
+    results = []
+    for pod in runtime_service.snapshot().pods:
+        h = asdict(pod.health)
+        h["online"] = h.get("network_latency_ms", 0.0) < 1000.0
+        results.append({
+            "pod_id": pod.id,
+            "status": pod.status,
+            "health": h
+        })
+    return jsonable_encoder(results)
 
 @router.get("/telemetry")
 def telemetry():

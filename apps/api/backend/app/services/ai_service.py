@@ -218,7 +218,7 @@ class AIService:
                     t0 = time.perf_counter()
                     res = httpx.post(url, json={
                         "contents": [{"parts": [{"text": prompt}]}]
-                    }, timeout=10.0)
+                    }, timeout=3.0)
                     latency = time.perf_counter() - t0
                     logging.info(f"Gemini API request (attempt {attempt}) completed in {latency:.3f} seconds.")
                     

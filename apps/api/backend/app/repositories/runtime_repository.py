@@ -16,7 +16,7 @@ class RuntimeRepository:
             self.session.add(TelemetryRecord(pod_id=pod.id, recorded_at=snapshot.simulated_at, payload={"temperature_c": pod.health.temperature_c, "power_draw_w": pod.health.power_draw_w, "network_latency_ms": pod.health.network_latency_ms}))
         for order in snapshot.recent_orders:
             if not self.session.get(OrderRecord, order.id):
-                self.session.add(OrderRecord(id=order.id, pod_id=order.pod_id, created_at=order.created_at, total_inr=order.total_inr, lines={"items": list(order.lines)}))
+                self.session.add(OrderRecord(id=order.id, pod_id=order.pod_id, created_at=order.created_at, total_inr=order.total_inr, lines={"items": [{"sku": sku, "quantity": qty} for sku, qty in order.lines]}))
         for alert in snapshot.alerts:
             self.session.merge(AlertRecord(id=alert.id, pod_id=alert.pod_id, severity=alert.severity.value, code=alert.code, message=alert.message, active=alert.active, opened_at=alert.opened_at))
         for pod in snapshot.pods:

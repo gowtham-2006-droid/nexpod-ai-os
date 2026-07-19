@@ -69,6 +69,9 @@ class Order:
     created_at: datetime
     lines: tuple[tuple[str, int], ...]
     total_inr: int
+    customer: str = "Atrium Customer"
+    status: str = "completed"
+    payment_method: str = "UPI"
 
 
 @dataclass(frozen=True)
