@@ -14,7 +14,8 @@ import {
   MediaVolumeRange,
 } from "media-chrome/react";
 import type { ComponentProps } from "react";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 
 export type VideoPlayerProps = ComponentProps<typeof MediaController>;
@@ -122,11 +123,7 @@ export const Skiper67 = ({
 
   return (
     <div className={cn("relative w-full h-full", className)}>
-      <AnimatePresence>
-        {showVideoPopOver && (
-          <VideoPopOver videoSrc={videoSrc} setShowVideoPopOver={setShowVideoPopOver} />
-        )}
-      </AnimatePresence>
+      <VideoPopOverPortal show={showVideoPopOver} videoSrc={videoSrc} setShowVideoPopOver={setShowVideoPopOver} />
 
       <div
         onPointerMove={handlePointerMove}
@@ -193,6 +190,33 @@ export const Skiper67 = ({
   );
 };
 
+const VideoPopOverPortal = ({
+  show,
+  videoSrc,
+  setShowVideoPopOver,
+}: {
+  show: boolean;
+  videoSrc: string;
+  setShowVideoPopOver: (v: boolean) => void;
+}) => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
+  return createPortal(
+    <AnimatePresence>
+      {show && (
+        <VideoPopOver videoSrc={videoSrc} setShowVideoPopOver={setShowVideoPopOver} />
+      )}
+    </AnimatePresence>,
+    document.body
+  );
+};
+
 const VideoPopOver = ({
   videoSrc,
   setShowVideoPopOver,
@@ -211,7 +235,7 @@ const VideoPopOver = ({
   }, [setShowVideoPopOver]);
 
   return (
-    <div className="fixed left-0 top-0 z-[9999] flex h-screen w-screen items-center justify-center p-4">
+    <div className="fixed left-0 top-0 z-[999999] flex h-screen w-screen items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -259,3 +283,4 @@ const VideoPopOver = ({
     </div>
   );
 };
+
