@@ -25,17 +25,6 @@ export const CustomerOrderStatus: React.FC<CustomerOrderStatusProps> = ({
   const [estimatedTime, setEstimatedTime] = useState('1m 30s');
 
   useEffect(() => {
-    // Initialize order start time locally to survive refreshes and bypass simulation clock offsets
-    const storageKey = `order_start_${orderId}`;
-    let startTimeStr = typeof window !== 'undefined' ? localStorage.getItem(storageKey) : null;
-    if (!startTimeStr) {
-      startTimeStr = Date.now().toString();
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(storageKey, startTimeStr);
-      }
-    }
-    const startTime = parseInt(startTimeStr, 10);
-
     const pollOrderStatus = async () => {
       try {
         // Fetch live telemetry from the machine
@@ -53,26 +42,6 @@ export const CustomerOrderStatus: React.FC<CustomerOrderStatusProps> = ({
         }
 
         setTelemetry({ temp: liveTemp, pressure: livePress });
-
-        // Calculate progress based on real-world elapsed time (seconds)
-        const ageSeconds = (Date.now() - startTime) / 1000;
-        
-        if (ageSeconds < 4) {
-          setProgress(15 + (ageSeconds / 4) * 25); // 15% to 40%
-          setStatus('preparing');
-          setBrewStep('Calibrating grinders...');
-          setEstimatedTime(`${Math.max(0, Math.round(12 - ageSeconds))}s`);
-        } else if (ageSeconds < 12) {
-          setProgress(40 + ((ageSeconds - 4) / 8) * 60); // 40% to 100%
-          setStatus('preparing');
-          setBrewStep('Extracting espresso crema...');
-          setEstimatedTime(`${Math.max(0, Math.round(12 - ageSeconds))}s`);
-        } else {
-          setProgress(100);
-          setStatus('ready');
-          setBrewStep('Beverage ready for pickup!');
-          setEstimatedTime('Ready!');
-        }
       } catch (err) {
         logger.error("Failed to query order tracking details", err);
       }
@@ -80,6 +49,44 @@ export const CustomerOrderStatus: React.FC<CustomerOrderStatusProps> = ({
 
     pollOrderStatus();
     const interval = setInterval(pollOrderStatus, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    // Initialize order start time locally to survive refreshes and bypass simulation clock offsets
+    const storageKey = `order_start_${orderId}`;
+    let startTimeStr = typeof window !== 'undefined' ? localStorage.getItem(storageKey) : null;
+    if (!startTimeStr) {
+      startTimeStr = Date.now().toString();
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(storageKey, startTimeStr);
+      }
+    }
+    const startTime = parseInt(startTimeStr, 10);
+
+    const updateProgress = () => {
+      const ageSeconds = (Date.now() - startTime) / 1000;
+      
+      if (ageSeconds < 4) {
+        setProgress(15 + (ageSeconds / 4) * 25); // 15% to 40%
+        setStatus('preparing');
+        setBrewStep('Calibrating grinders...');
+        setEstimatedTime(`${Math.max(0, Math.round(12 - ageSeconds))}s`);
+      } else if (ageSeconds < 12) {
+        setProgress(40 + ((ageSeconds - 4) / 8) * 60); // 40% to 100%
+        setStatus('preparing');
+        setBrewStep('Extracting espresso crema...');
+        setEstimatedTime(`${Math.max(0, Math.round(12 - ageSeconds))}s`);
+      } else {
+        setProgress(100);
+        setStatus('ready');
+        setBrewStep('Beverage ready for pickup!');
+        setEstimatedTime('Ready!');
+      }
+    };
+
+    updateProgress();
+    const interval = setInterval(updateProgress, 100); // Fast 100ms interval for fluid movement
     return () => clearInterval(interval);
   }, [orderId]);
 

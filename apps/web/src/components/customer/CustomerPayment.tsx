@@ -25,13 +25,16 @@ export const CustomerPayment: React.FC<CustomerPaymentProps> = ({
 
   const totalPrice = cart.reduce((s, c) => s + c.price * c.quantity, 0);
 
-  const handlePay = () => {
+  const handlePay = async () => {
     setIsProcessing(true);
-    // Simulate transaction
-    setTimeout(() => {
+    if (setError) setError(null);
+    // Simulate transaction delay
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      await onPaymentSuccess(selectedMethod);
+    } catch (err) {
       setIsProcessing(false);
-      onPaymentSuccess(selectedMethod);
-    }, 2500);
+    }
   };
 
   const paymentMethods = [
