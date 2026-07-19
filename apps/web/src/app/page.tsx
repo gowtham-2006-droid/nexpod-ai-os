@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Brain,
   Radio,
@@ -92,12 +93,72 @@ import {
 } from '../components/ui/message-scroller';
 
 export default function LandingPage() {
-  const [showVideoModal, setShowVideoModal] = useState(false);
+  const router = useRouter();
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  const onboardingSteps = [
+    {
+      title: "Welcome to NexPod AI OS",
+      short_description: "Hackathon Judge Guide",
+      full_description: "NexPod AI OS is the first predictive intelligence operating system for autonomous retail. It replaces reactive maintenance with real-time telemetry and predictive AI pipelines.",
+      media: {
+        type: "image" as const,
+        src: "/dashboard_mockup.png",
+        alt: "NexPod Mission Control"
+      }
+    },
+    {
+      title: "Step 1: Simulating Customer Orders",
+      short_description: "Order Placement",
+      full_description: "Click the 'Customer App' button on the landing page to open the simulator. Try customizing a drink and ordering. The system dynamically processes your transaction in real-time.",
+      media: {
+        type: "image" as const,
+        src: "/customer_mockup.png",
+        alt: "Customer Portal"
+      }
+    },
+    {
+      title: "Step 2: Monitoring Live Telemetry",
+      short_description: "Real-time Dashboard",
+      full_description: "Open the Dashboard to see telemetry charts (temperature, power draw, latency) update instantly as simulator orders come in. Monitor machine health and view live sales metrics.",
+      media: {
+        type: "image" as const,
+        src: "/coffee_pod_render.png",
+        alt: "Telemetry Monitoring"
+      }
+    },
+    {
+      title: "Step 3: AI-Driven Auto-Replenishment",
+      short_description: "Smart Operations",
+      full_description: "Go to the Settings page and enable 'AI Auto-Reorder'. When any ingredient stock runs low, the background simulator automatically triggers a restocking sequence, preventing checkout failures.",
+      media: {
+        type: "image" as const,
+        src: "/retro_vending_machine.png",
+        alt: "AI Auto-Replenishment"
+      },
+      action: {
+        label: "Launch Dashboard",
+        onClick: () => {
+          localStorage.setItem('nexpod_judge_onboarding', 'true');
+          setShowOnboarding(false);
+          router.push('/dashboard');
+        }
+      }
+    }
+  ];
+
+  const handleLaunchDashboardClick = (e: React.MouseEvent) => {
+    const dismissed = localStorage.getItem('nexpod_judge_onboarding');
+    if (!dismissed) {
+      e.preventDefault();
+      setShowOnboarding(true);
+    }
+  };
 
   // Globe configurations
   const customGlobeConfig = {
@@ -214,7 +275,7 @@ export default function LandingPage() {
 
               {/* Buttons */}
               <div className="flex flex-col sm:flex-row items-center gap-4 pt-4">
-                <Link href="/dashboard">
+                <Link href="/dashboard" onClick={handleLaunchDashboardClick}>
                   <HoverBorderGradient
                     containerClassName="rounded-xl border border-foreground/10 shadow-[0_0_20px_rgba(0,0,0,0.05)] dark:shadow-[0_0_20px_rgba(255,255,255,0.05)]"
                     className="text-xs font-bold font-mono px-6 py-3.5 bg-foreground text-background"
@@ -223,12 +284,13 @@ export default function LandingPage() {
                   </HoverBorderGradient>
                 </Link>
 
-                <InteractiveHoverButton
-                  onClick={() => setShowVideoModal(true)}
-                  className="bg-boxdark border-strokedark text-foreground font-mono text-xs hover:text-background py-3 px-6"
-                >
-                  Watch Demo
-                </InteractiveHoverButton>
+                <Link href="/customer">
+                  <InteractiveHoverButton
+                    className="bg-boxdark border-strokedark text-foreground font-mono text-xs hover:text-background py-3.5 px-6"
+                  >
+                    Customer App
+                  </InteractiveHoverButton>
+                </Link>
               </div>
             </div>
           </div>
@@ -242,40 +304,6 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
-      {/* Hero Video Dialog Container */}
-      <AnimatePresence>
-        {showVideoModal && mounted && createPortal(
-          <div className="fixed inset-0 z-[100000] flex min-h-screen items-center justify-center p-4">
-            <div
-              className="absolute inset-0 bg-black/100 backdrop-blur-md z-[100001]"
-              onClick={() => setShowVideoModal(false)}
-            />
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="relative w-full max-w-6xl bg-boxdark border border-strokedark rounded-3xl overflow-hidden aspect-video z-[100002] shadow-2xl"
-            >
-              <button
-                onClick={() => setShowVideoModal(false)}
-                className="absolute bottom-4 right-4 h-8 w-8 rounded-full bg-black/40 hover:bg-black/80 border border-strokedark flex items-center justify-center text-white hover:text-primary transition-colors cursor-pointer z-20"
-              >
-                ✕
-              </button>
-
-              <iframe
-                src="https://www.youtube.com/embed/dQw4w9WgXcQ"
-                title="NexPod Product Video Demo"
-                className="w-full h-full"
-                allowFullScreen
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              />
-            </motion.div>
-          </div>,
-          document.body
-        )}
-      </AnimatePresence>
 
       {/* Text Reveal Block */}
       <section className="relative bg-background z-10 border-t border-strokedark/30">
@@ -701,7 +729,7 @@ export default function LandingPage() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-            <Link href="/dashboard">
+            <Link href="/dashboard" onClick={handleLaunchDashboardClick}>
               <HoverBorderGradient
                 containerClassName="rounded-xl border border-white/10 shadow-[0_0_20px_rgba(255,255,255,0.05)]"
                 className="text-xs font-bold font-mono px-6 py-3.5 bg-black"
@@ -712,7 +740,7 @@ export default function LandingPage() {
 
             <Link href="/customer">
               <InteractiveHoverButton className="bg-boxdark border-strokedark text-black dark:text-white font-mono text-xs py-3 px-6">
-                Customer Demo
+                Customer App
               </InteractiveHoverButton>
             </Link>
           </div>
@@ -734,6 +762,22 @@ export default function LandingPage() {
         title="Customer Demo Portal"
         description="Launch the Customer Order App to custom dial milk choices, configure sweetness levels, and order drinks like a physical user."
         actionText="Got It"
+      />
+
+      {/* Onboarding Dialog for Hackathon Judge */}
+      <IntroDisclosure
+        steps={onboardingSteps}
+        featureId="nexpod_judge_onboarding"
+        isOpen={showOnboarding}
+        onClose={() => setShowOnboarding(false)}
+        onComplete={() => {
+          setShowOnboarding(false);
+          router.push('/dashboard');
+        }}
+        onSkip={() => {
+          setShowOnboarding(false);
+          router.push('/dashboard');
+        }}
       />
 
       {/* AI Chat Sidebar */}
