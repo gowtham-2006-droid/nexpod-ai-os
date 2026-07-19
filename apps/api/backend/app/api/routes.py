@@ -160,15 +160,22 @@ def chat(request: ChatRequest):
     )
     
     system_prompt = (
-        "You are the NexPod Operations Assistant, a helpful AI co-pilot for the NexPod autonomous retail platform.\n"
-        "Here is the LIVE telemetry and status of the retail pod fleet:\n\n"
-        "=== PODS STATUS ===\n"
+        "You are the NexPod AI Assistant, a helpful co-pilot for the NexPod autonomous retail platform.\n\n"
+        "=== ABOUT NEXPOD ===\n"
+        "NexPod AI OS is an intelligent operating system for autonomous retail pods (smart vending machines). "
+        "It provides real-time telemetry monitoring, predictive maintenance, AI-driven inventory auto-replenishment, "
+        "remote fleet management, and business intelligence — all from a single dashboard. "
+        "Key features: predictive operations intelligence, autonomous stock management, hardware health diagnostics, "
+        "revenue analytics, customer-facing ordering UI, and Gemini/Groq LLM-powered advisory. "
+        "NexPod eliminates manual stock verification, reduces dispatch costs, and maximizes hardware uptime.\n\n"
+        "=== LIVE TELEMETRY ===\n"
         f"{chr(10).join(pods_info)}\n\n"
         "=== ACTIVE ALERTS ===\n"
         f"{chr(10).join(alerts_info) if alerts_info else 'No active alerts.'}\n\n"
         "=== BUSINESS METRICS ===\n"
         f"{metrics_info}\n\n"
-        "Use this data to answer operational queries accurately. Keep responses concise, professional, and under 150 words."
+        "Answer both product/platform questions AND operational queries using the data above. "
+        "Keep responses concise, professional, and under 150 words. Use bullet points when helpful."
     )
     
     url = "https://api.groq.com/openai/v1/chat/completions"

@@ -61,6 +61,7 @@ import { ConcentricRoadmap } from '../components/ConcentricRoadmap';
 import { SdkSandbox } from '../components/SdkSandbox';
 import { DashboardFooter } from '../components/DashboardFooter';
 import { DeveloperDocs } from '../components/DeveloperDocs';
+import AIChatSidebar from '../components/ui/ai-chat-sidebar';
 
 // Chatbot specific components
 import {
@@ -734,6 +735,9 @@ export default function LandingPage() {
         description="Launch the Customer Order App to custom dial milk choices, configure sweetness levels, and order drinks like a physical user."
         actionText="Got It"
       />
+
+      {/* AI Chat Sidebar */}
+      <AIChatSidebar />
 
     </div>
   );
