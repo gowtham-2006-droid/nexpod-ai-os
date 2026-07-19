@@ -29,7 +29,7 @@ export const CustomerPayment: React.FC<CustomerPaymentProps> = ({
     setIsProcessing(true);
     if (setError) setError(null);
     // Simulate transaction delay
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await new Promise((resolve) => setTimeout(resolve, 500));
     try {
       await onPaymentSuccess(selectedMethod);
     } catch (err) {
