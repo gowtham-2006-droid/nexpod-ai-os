@@ -57,16 +57,16 @@ export const CustomerOrderStatus: React.FC<CustomerOrderStatusProps> = ({
         // Calculate progress based on real-world elapsed time (seconds)
         const ageSeconds = (Date.now() - startTime) / 1000;
         
-        if (ageSeconds < 12) {
-          setProgress(15 + (ageSeconds / 12) * 20); // 15% to 35%
+        if (ageSeconds < 4) {
+          setProgress(15 + (ageSeconds / 4) * 25); // 15% to 40%
           setStatus('preparing');
           setBrewStep('Calibrating grinders...');
-          setEstimatedTime(`${Math.max(0, Math.round(35 - ageSeconds))}s`);
-        } else if (ageSeconds < 35) {
-          setProgress(35 + ((ageSeconds - 12) / 23) * 55); // 35% to 90%
+          setEstimatedTime(`${Math.max(0, Math.round(12 - ageSeconds))}s`);
+        } else if (ageSeconds < 12) {
+          setProgress(40 + ((ageSeconds - 4) / 8) * 60); // 40% to 100%
           setStatus('preparing');
           setBrewStep('Extracting espresso crema...');
-          setEstimatedTime(`${Math.max(0, Math.round(35 - ageSeconds))}s`);
+          setEstimatedTime(`${Math.max(0, Math.round(12 - ageSeconds))}s`);
         } else {
           setProgress(100);
           setStatus('ready');
