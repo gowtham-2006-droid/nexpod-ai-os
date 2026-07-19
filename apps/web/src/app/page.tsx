@@ -160,6 +160,57 @@ export default function LandingPage() {
     }
   };
 
+  const [showCustomerOnboarding, setShowCustomerOnboarding] = useState(false);
+
+  const customerOnboardingSteps = [
+    {
+      title: "Customer Order Portal",
+      short_description: "Simulating Transactions",
+      full_description: "Welcome to the NexPod Customer checkout screen! Here, you can simulate a walk-up user interacting with a physical retail pod in real-time.",
+      media: {
+        type: "image" as const,
+        src: "/customer_mockup.png",
+        alt: "Customer Portal"
+      }
+    },
+    {
+      title: "Customize Your Drink",
+      short_description: "Dial Sweetness & Milk",
+      full_description: "Use the customizers to select milk preferences (Oat, Soy, Whole) and dial in sweetness levels. Watch the ingredient inventory reflect these custom proportions dynamically.",
+      media: {
+        type: "image" as const,
+        src: "/coffee_pod_render.png",
+        alt: "Drink Customization"
+      }
+    },
+    {
+      title: "Trigger Real-Time Telemetry",
+      short_description: "Live WebSockets",
+      full_description: "Once you place an order, the system registers checkout transactions, recalculates remaining stock, updates telemetry (power spikes, temperature changes), and pumps metrics to the dashboard.",
+      media: {
+        type: "image" as const,
+        src: "/retro_vending_machine.png",
+        alt: "Telemetry Dispatch"
+      },
+      action: {
+        label: "Launch Customer App",
+        onClick: () => {
+          localStorage.setItem('nexpod_customer_onboarding', 'true');
+          setShowCustomerOnboarding(false);
+          router.push('/customer');
+        }
+      }
+    }
+  ];
+
+  const handleLaunchCustomerClick = (e: React.MouseEvent) => {
+    const dismissed = localStorage.getItem('nexpod_customer_onboarding');
+    if (!dismissed) {
+      e.preventDefault();
+      setShowCustomerOnboarding(true);
+    }
+  };
+
   // Globe configurations
   const customGlobeConfig = {
     width: 600,
@@ -284,7 +335,7 @@ export default function LandingPage() {
                   </HoverBorderGradient>
                 </Link>
 
-                <Link href="/customer">
+                <Link href="/customer" onClick={handleLaunchCustomerClick}>
                   <InteractiveHoverButton
                     className="bg-boxdark border-strokedark text-foreground font-mono text-xs hover:text-background py-3.5 px-6"
                   >
@@ -738,7 +789,7 @@ export default function LandingPage() {
               </HoverBorderGradient>
             </Link>
 
-            <Link href="/customer">
+            <Link href="/customer" onClick={handleLaunchCustomerClick}>
               <InteractiveHoverButton className="bg-boxdark border-strokedark text-black dark:text-white font-mono text-xs py-3 px-6">
                 Customer App
               </InteractiveHoverButton>
@@ -777,6 +828,21 @@ export default function LandingPage() {
         onSkip={() => {
           setShowOnboarding(false);
           router.push('/dashboard');
+        }}
+      />
+      {/* Onboarding Dialog for Customer Simulator */}
+      <IntroDisclosure
+        steps={customerOnboardingSteps}
+        featureId="nexpod_customer_onboarding"
+        isOpen={showCustomerOnboarding}
+        onClose={() => setShowCustomerOnboarding(false)}
+        onComplete={() => {
+          setShowCustomerOnboarding(false);
+          router.push('/customer');
+        }}
+        onSkip={() => {
+          setShowCustomerOnboarding(false);
+          router.push('/customer');
         }}
       />
 

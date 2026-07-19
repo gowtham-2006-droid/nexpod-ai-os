@@ -96,8 +96,8 @@ export const VideoPlayerContent = ({
 );
 
 export const Skiper67 = ({
-  videoSrc = "https://assets.mixkit.co/videos/preview/mixkit-abstract-laser-lights-background-loop-41852-large.mp4",
-  thumbnailVideoSrc = "https://assets.mixkit.co/videos/preview/mixkit-abstract-laser-lights-background-loop-41852-large.mp4",
+  videoSrc = "https://res.cloudinary.com/dkt9vrlf0/video/upload/v1784297599/lv_0_20260717193936_drvv6q.mp4",
+  thumbnailVideoSrc = "https://res.cloudinary.com/dkt9vrlf0/video/upload/v1784297599/lv_0_20260717193936_drvv6q.mp4",
   className,
 }: {
   videoSrc?: string;
