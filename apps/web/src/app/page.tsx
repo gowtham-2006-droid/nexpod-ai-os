@@ -45,7 +45,6 @@ import { ShimmerButton } from '../components/ui/shimmer-button';
 import { InteractiveHoverButton } from '../components/ui/interactive-hover-button';
 import { HoverBorderGradient } from '../components/ui/hover-border-gradient';
 import { WobbleCard } from '../components/ui/wobble-card';
-import { HeroVideoDialog } from '../components/ui/hero-video-dialog';
 import { AnimatedTooltip } from '../components/ui/animated-tooltip';
 import { IntroDisclosure } from '../components/ui/intro-disclosure';
 import { MockBrowserWindow } from '../components/ui/mock-browser-window';
@@ -63,34 +62,6 @@ import { SdkSandbox } from '../components/SdkSandbox';
 import { DashboardFooter } from '../components/DashboardFooter';
 import { DeveloperDocs } from '../components/DeveloperDocs';
 import AIChatSidebar from '../components/ui/ai-chat-sidebar';
-
-// Chatbot specific components
-import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '../components/ui/breadcrumb';
-import {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-} from '../components/ui/accordion';
-import {
-  BubbleGroup,
-  Bubble,
-  BubbleContent,
-} from '../components/ui/bubble';
-import {
-  MessageScroller,
-  MessageScrollerViewport,
-  MessageScrollerContent,
-  MessageScrollerItem,
-  MessageScrollerButton,
-} from '../components/ui/message-scroller';
 
 export default function LandingPage() {
   const router = useRouter();
