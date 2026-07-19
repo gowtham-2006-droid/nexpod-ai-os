@@ -28,6 +28,7 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { api } from '../lib/api';
 
 // Installed Shadcn/MagicUI/VengenceUI/CultUI components
 import { ScrollProgress } from '../components/ui/scroll-progress';
@@ -116,26 +117,41 @@ export default function LandingPage() {
     if (!textToSend) setInputValue('');
     setIsTyping(true);
 
-    setTimeout(() => {
-      let aiResponseText = "I understand you are asking about NexPod operations. Our platform integrates real-time telemetry streams with Gemini-based operational alerts and cache projections to ensure high-uptime self-service retail.";
-      const lowerText = text.toLowerCase();
-      
-      if (lowerText.includes('what is nexpod') || lowerText.includes('about nexpod')) {
-        aiResponseText = "NexPod AI OS is a cloud-based operating system designed to centrally manage networks of autonomous self-service pods. The MVP focuses on autonomous coffee/tea pods, but the architecture is extensible to EV charging, parcel lockers, and other services.";
-      } else if (lowerText.includes('how does the ai work') || lowerText.includes('ai optimize') || lowerText.includes('how does ai work')) {
-        aiResponseText = "The embedded operations AI uses Gemini 2.5 Flash to analyze runtime telemetry (inventory levels, sales logs, machine status) and outputs structured recommendations, like refilling the milk before the evening rush or scheduling preventive boiler cleaning.";
-      } else if (lowerText.includes('telemetry') || lowerText.includes('sensors')) {
-        aiResponseText = "We track live temperature, network latency, power usage, and inventory fill levels. These sensor nodes feed directly into our rules-engine and AI analytics pipeline.";
-      } else if (lowerText.includes('run the simulator') || lowerText.includes('run simulator') || lowerText.includes('start simulator')) {
-        aiResponseText = "In the backend workspace (apps/api), run 'python demo.py' for a command-line ticker, or start the server using 'python -m uvicorn backend.app.main:app' and call the simulation tick endpoint.";
-      }
+    // Call the backend /api/chat route
+    const history = newMessages.map(m => ({
+      role: m.sender === 'user' ? 'user' : 'assistant',
+      content: m.text
+    }));
 
-      setMessages(prev => [
-        ...prev,
-        { id: `ai-msg-${Date.now()}`, text: aiResponseText, sender: 'ai' as const }
-      ]);
-      setIsTyping(false);
-    }, 1000);
+    api.postChat(history)
+      .then(res => {
+        setMessages(prev => [
+          ...prev,
+          { id: `ai-msg-${Date.now()}`, text: res.response, sender: 'ai' as const }
+        ]);
+        setIsTyping(false);
+      })
+      .catch(err => {
+        // Fallback to local rule-based response if backend chat is not configured or offline
+        let aiResponseText = "I understand you are asking about NexPod operations. Our platform integrates real-time telemetry streams with Gemini-based operational alerts and cache projections to ensure high-uptime self-service retail.";
+        const lowerText = text.toLowerCase();
+        
+        if (lowerText.includes('what is nexpod') || lowerText.includes('about nexpod')) {
+          aiResponseText = "NexPod AI OS is a cloud-based operating system designed to centrally manage networks of autonomous self-service pods. The MVP focuses on autonomous coffee/tea pods, but the architecture is extensible to EV charging, parcel lockers, and other services.";
+        } else if (lowerText.includes('how does the ai work') || lowerText.includes('ai optimize') || lowerText.includes('how does ai work')) {
+          aiResponseText = "The embedded operations AI uses Gemini 2.5 Flash to analyze runtime telemetry (inventory levels, sales logs, machine status) and outputs structured recommendations, like refilling the milk before the evening rush or scheduling preventive boiler cleaning.";
+        } else if (lowerText.includes('telemetry') || lowerText.includes('sensors')) {
+          aiResponseText = "We track live temperature, network latency, power usage, and inventory fill levels. These sensor nodes feed directly into our rules-engine and AI analytics pipeline.";
+        } else if (lowerText.includes('run the simulator') || lowerText.includes('run simulator') || lowerText.includes('start simulator')) {
+          aiResponseText = "In the backend workspace (apps/api), run 'python demo.py' for a command-line ticker, or start the server using 'python -m uvicorn backend.app.main:app' and call the simulation tick endpoint.";
+        }
+
+        setMessages(prev => [
+          ...prev,
+          { id: `ai-msg-${Date.now()}`, text: aiResponseText, sender: 'ai' as const }
+        ]);
+        setIsTyping(false);
+      });
   };
 
   // Globe configurations

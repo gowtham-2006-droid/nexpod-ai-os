@@ -181,4 +181,10 @@ export const api = {
     }),
   getRuntime: () => request<RuntimeInfo>('/api/runtime'),
   getHealth: () => request<HealthStatus>('/api/health'),
+  
+  postChat: (messages: Array<{ role: string; content: string }>) =>
+    request<{ response: string }>('/api/chat', {
+      method: 'POST',
+      body: JSON.stringify({ messages }),
+    }),
 };

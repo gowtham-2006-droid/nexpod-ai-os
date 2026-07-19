@@ -16,6 +16,8 @@ class Settings(BaseSettings):
     simulation_tick_seconds: int = 5
     gemini_api_key: str | None = None
     gemini_model: str = "gemini-2.5-flash"
+    grok_api_key: str | None = None
+    grok_model: str = "llama-3.3-70b-versatile"
 
     @property
     def origin_list(self) -> list[str]:

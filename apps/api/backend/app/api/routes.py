@@ -114,3 +114,86 @@ def health():
 @router.post("/internal/tick", include_in_schema=False)
 def tick(minutes: int = Query(1, ge=1, le=60)):
     return jsonable_encoder(runtime_service.advance(minutes))
+
+
+from pydantic import BaseModel
+
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+
+class ChatRequest(BaseModel):
+    messages: list[ChatMessage]
+
+@router.post("/chat")
+def chat(request: ChatRequest):
+    import httpx
+    from ..services.runtime_service import runtime_service
+    from ..core.config import get_settings
+    
+    settings = get_settings()
+    api_key = settings.grok_api_key
+    if not api_key:
+        return {"response": "Grok API key is not configured on the backend. Please add GROK_API_KEY to your settings."}
+        
+    snapshot = runtime_service.snapshot()
+    pods_info = []
+    for pod in snapshot.pods:
+        inv_str = ", ".join([f"{item.name} ({item.sku}): {item.quantity}/{item.capacity} units" for item in pod.inventory])
+        pods_info.append(
+            f"Pod ID: {pod.id}\n"
+            f"- Status: {pod.status.value}\n"
+            f"- Health Score: {pod.health.score}%\n"
+            f"- Temperature: {pod.health.temperature_c}°C\n"
+            f"- Power Draw: {pod.health.power_draw_w}W\n"
+            f"- Network Latency: {pod.health.network_latency_ms}ms\n"
+            f"- Inventory: {inv_str}"
+        )
+    
+    alerts_info = []
+    for a in snapshot.alerts:
+        alerts_info.append(f"[{a.severity.value.upper()}] Code {a.code}: {a.message} (Active: {a.active})")
+        
+    metrics_info = (
+        f"Order Count: {snapshot.metrics.order_count}\n"
+        f"Gross Revenue: {snapshot.metrics.gross_revenue_inr} INR"
+    )
+    
+    system_prompt = (
+        "You are the NexPod Operations Assistant, a helpful AI co-pilot for the NexPod autonomous retail platform.\n"
+        "Here is the LIVE telemetry and status of the retail pod fleet:\n\n"
+        "=== PODS STATUS ===\n"
+        f"{chr(10).join(pods_info)}\n\n"
+        "=== ACTIVE ALERTS ===\n"
+        f"{chr(10).join(alerts_info) if alerts_info else 'No active alerts.'}\n\n"
+        "=== BUSINESS METRICS ===\n"
+        f"{metrics_info}\n\n"
+        "Use this data to answer operational queries accurately. Keep responses concise, professional, and under 150 words."
+    )
+    
+    url = "https://api.groq.com/openai/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    
+    api_messages = [{"role": "system", "content": system_prompt}]
+    for msg in request.messages:
+        role = "user" if msg.role == "user" else "assistant"
+        api_messages.append({"role": role, "content": msg.content})
+        
+    try:
+        res = httpx.post(url, json={
+            "model": settings.grok_model,
+            "messages": api_messages,
+            "temperature": 0.3
+        }, headers=headers, timeout=10.0)
+        
+        if res.status_code != 200:
+            return {"response": f"Error from Grok API (Status {res.status_code}): {res.text}"}
+            
+        data = res.json()
+        ai_message = data["choices"][0]["message"]["content"]
+        return {"response": ai_message}
+    except Exception as e:
+        return {"response": f"Failed to connect to Grok API: {str(e)}"}
