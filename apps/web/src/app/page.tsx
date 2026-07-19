@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import {
@@ -91,6 +92,11 @@ import {
 
 export default function LandingPage() {
   const [showVideoModal, setShowVideoModal] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Globe configurations
   const customGlobeConfig = {
@@ -238,7 +244,7 @@ export default function LandingPage() {
 
       {/* Hero Video Dialog Container */}
       <AnimatePresence>
-        {showVideoModal && (
+        {showVideoModal && mounted && createPortal(
           <div className="fixed inset-0 z-[100000] flex min-h-screen items-center justify-center p-4">
             <div
               className="absolute inset-0 bg-black/100 backdrop-blur-md z-[100001]"
@@ -265,7 +271,8 @@ export default function LandingPage() {
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               />
             </motion.div>
-          </div>
+          </div>,
+          document.body
         )}
       </AnimatePresence>
 
