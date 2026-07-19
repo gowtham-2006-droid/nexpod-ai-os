@@ -147,6 +147,7 @@ export const Skiper67 = ({
           muted
           playsInline
           loop
+          poster="/dashboard_mockup.png"
           className="h-full w-full object-cover opacity-80 animate-fade-in"
         >
           <source src={thumbnailVideoSrc} type="video/mp4" />
@@ -259,6 +260,7 @@ const VideoPopOver = ({
         <VideoPlayer style={{ width: "100%", height: "100%" }}>
           <VideoPlayerContent
             src={videoSrc}
+            poster="/dashboard_mockup.png"
             autoPlay
             slot="media"
             className="w-full h-full object-cover"
