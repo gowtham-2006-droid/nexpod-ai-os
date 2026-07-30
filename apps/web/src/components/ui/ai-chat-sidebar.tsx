@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ThinkingOrb, OrbState } from 'thinking-orbs';
 import { api } from '@/lib/api';
 
 interface ChatMessage {
@@ -16,12 +17,25 @@ const STARTER_CHIPS = [
   'What is NexPod?',
 ];
 
+const ORB_STATE_OPTIONS: { id: OrbState; label: string }[] = [
+  { id: 'listening', label: 'Listening' },
+  { id: 'solving', label: 'Thinking' },
+  { id: 'searching', label: 'Searching' },
+  { id: 'composing', label: 'Composing' },
+  { id: 'working', label: 'Working' },
+  { id: 'shaping', label: 'Shaping' },
+];
+
 function ChatPanel({
   isOpen,
   onClose,
+  orbState,
+  setOrbState,
 }: {
   isOpen: boolean;
   onClose: () => void;
+  orbState: OrbState;
+  setOrbState: (state: OrbState) => void;
 }) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
@@ -115,16 +129,16 @@ function ChatPanel({
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-border">
               <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-lg bg-foreground/10 border border-border flex items-center justify-center">
-                  <span className="text-sm">⚡</span>
+                <div className="h-9 w-9 rounded-xl bg-foreground/5 border border-border flex items-center justify-center overflow-hidden shadow-sm">
+                  <ThinkingOrb state={isLoading ? 'solving' : orbState} size={20} />
                 </div>
                 <div>
-                  <h2 className="text-sm font-bold text-foreground font-mono tracking-tight">
+                  <h2 className="text-sm font-bold text-foreground font-mono tracking-tight flex items-center gap-2">
                     NexPod AI
                   </h2>
                   <span className="text-[10px] text-muted-foreground font-mono flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-foreground/50 animate-pulse inline-block" />
-                    Online · Groq LLM
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
+                    Online · Thinking Orb Active
                   </span>
                 </div>
               </div>
@@ -141,30 +155,57 @@ function ChatPanel({
             {/* Messages */}
             <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
               {messages.length === 0 && !isLoading && (
-                <div className="flex flex-col items-center justify-center h-full text-center space-y-6 py-12">
-                  <div className="h-16 w-16 rounded-2xl bg-secondary border border-border flex items-center justify-center">
-                    <span className="text-2xl">🤖</span>
+                <div className="flex flex-col items-center justify-center h-full text-center space-y-5 py-8">
+                  <div className="relative p-3 rounded-3xl bg-secondary/40 border border-border/80 shadow-inner flex items-center justify-center group hover:scale-105 transition-transform duration-300">
+                    <ThinkingOrb state={orbState} size={64} />
                   </div>
-                  <div className="space-y-2">
-                    <p className="text-sm font-bold text-foreground/80 font-mono">
+                  <div className="space-y-1.5">
+                    <p className="text-sm font-bold text-foreground font-mono">
                       NexPod AI Assistant
                     </p>
-                    <p className="text-xs text-muted-foreground font-mono max-w-[260px] leading-relaxed">
-                      Ask about pod status, alerts, inventory, or anything about the NexPod platform.
+                    <p className="text-xs text-muted-foreground font-mono max-w-[270px] leading-relaxed">
+                      Powered by real-time particle-based thinking orbs. Ask anything about NexPod.
                     </p>
                   </div>
 
+                  {/* Orb State Selector Chips */}
+                  <div className="w-full pt-1 space-y-2">
+                    <p className="text-[10px] text-muted-foreground/70 font-mono uppercase tracking-wider font-semibold">
+                      Orb Animation Mode
+                    </p>
+                    <div className="flex flex-wrap justify-center gap-1.5 max-w-[320px] mx-auto">
+                      {ORB_STATE_OPTIONS.map((option) => (
+                        <button
+                          key={option.id}
+                          onClick={() => setOrbState(option.id)}
+                          className={`px-2.5 py-1 text-[10px] font-mono rounded-full border transition-all cursor-pointer ${
+                            orbState === option.id
+                              ? 'bg-foreground text-background border-foreground font-bold shadow-sm'
+                              : 'bg-secondary/70 hover:bg-accent text-muted-foreground border-border'
+                          }`}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                   {/* Starter Chips */}
-                  <div className="flex flex-wrap justify-center gap-2 pt-2">
-                    {STARTER_CHIPS.map((chip) => (
-                      <button
-                        key={chip}
-                        onClick={() => sendMessage(chip)}
-                        className="px-3 py-1.5 text-[11px] font-mono text-muted-foreground bg-secondary hover:bg-accent border border-border hover:border-foreground/20 rounded-full transition-all cursor-pointer hover:text-foreground"
-                      >
-                        {chip}
-                      </button>
-                    ))}
+                  <div className="w-full pt-2 border-t border-border/50">
+                    <p className="text-[10px] text-muted-foreground/70 font-mono uppercase tracking-wider font-semibold mb-2">
+                      Suggested Queries
+                    </p>
+                    <div className="flex flex-wrap justify-center gap-2">
+                      {STARTER_CHIPS.map((chip) => (
+                        <button
+                          key={chip}
+                          onClick={() => sendMessage(chip)}
+                          className="px-3 py-1.5 text-[11px] font-mono text-muted-foreground bg-secondary hover:bg-accent border border-border hover:border-foreground/20 rounded-full transition-all cursor-pointer hover:text-foreground"
+                        >
+                          {chip}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
@@ -174,33 +215,41 @@ function ChatPanel({
                   key={i}
                   className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  <div
-                    className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-[13px] leading-relaxed font-mono ${
-                      msg.role === 'user'
-                        ? 'bg-foreground text-background rounded-br-md'
-                        : 'bg-secondary text-foreground/90 border border-border rounded-bl-md'
-                    }`}
-                  >
+                  <div className={`max-w-[88%] flex gap-2.5 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
                     {msg.role === 'assistant' && (
-                      <span className="text-[9px] text-muted-foreground font-bold uppercase tracking-widest block mb-1">
-                        NexPod AI
-                      </span>
+                      <div className="h-6 w-6 rounded-lg bg-secondary border border-border flex items-center justify-center shrink-0 mt-1 overflow-hidden">
+                        <ThinkingOrb state="working" size={20} />
+                      </div>
                     )}
-                    <div className="whitespace-pre-wrap">{msg.content}</div>
+                    <div
+                      className={`rounded-2xl px-4 py-2.5 text-[13px] leading-relaxed font-mono ${
+                        msg.role === 'user'
+                          ? 'bg-foreground text-background rounded-br-md'
+                          : 'bg-secondary text-foreground/90 border border-border rounded-bl-md'
+                      }`}
+                    >
+                      {msg.role === 'assistant' && (
+                        <span className="text-[9px] text-muted-foreground font-bold uppercase tracking-widest block mb-1">
+                          NexPod AI
+                        </span>
+                      )}
+                      <div className="whitespace-pre-wrap">{msg.content}</div>
+                    </div>
                   </div>
                 </div>
               ))}
 
               {isLoading && (
                 <div className="flex justify-start">
-                  <div className="bg-secondary border border-border rounded-2xl rounded-bl-md px-4 py-3">
-                    <span className="text-[9px] text-muted-foreground font-bold uppercase tracking-widest font-mono block mb-1.5">
-                      NexPod AI
-                    </span>
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 bg-muted-foreground/60 rounded-full animate-bounce [animation-delay:0ms]" />
-                      <span className="w-1.5 h-1.5 bg-muted-foreground/60 rounded-full animate-bounce [animation-delay:150ms]" />
-                      <span className="w-1.5 h-1.5 bg-muted-foreground/60 rounded-full animate-bounce [animation-delay:300ms]" />
+                  <div className="flex items-center gap-3 bg-secondary/80 border border-border rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
+                    <ThinkingOrb state="solving" size={20} />
+                    <div>
+                      <span className="text-[9px] text-muted-foreground font-bold uppercase tracking-widest font-mono block">
+                        NexPod AI
+                      </span>
+                      <span className="text-xs text-foreground/80 font-mono animate-pulse">
+                        Solving query & generating response...
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -215,6 +264,9 @@ function ChatPanel({
               className="px-4 py-3 border-t border-border bg-background/60"
             >
               <div className="flex items-center gap-2 bg-secondary border border-border rounded-xl px-3 py-1 focus-within:border-foreground/30 transition-colors">
+                <div className="shrink-0 flex items-center justify-center">
+                  <ThinkingOrb state={input ? 'listening' : 'working'} size={20} />
+                </div>
                 <input
                   ref={inputRef}
                   type="text"
@@ -236,7 +288,7 @@ function ChatPanel({
                 </button>
               </div>
               <p className="text-[9px] text-muted-foreground/40 font-mono text-center mt-2">
-                Powered by Groq · llama-3.3-70b-versatile
+                Powered by Groq · llama-3.3-70b-versatile · thinking-orbs
               </p>
             </form>
           </motion.aside>
@@ -249,6 +301,7 @@ function ChatPanel({
 export default function AIChatSidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [orbState, setOrbState] = useState<OrbState>('listening');
 
   useEffect(() => {
     setMounted(true);
@@ -256,44 +309,39 @@ export default function AIChatSidebar() {
 
   return (
     <>
-      {/* Floating Trigger Button */}
+      {/* Floating Trigger Button with ThinkingOrb */}
       <button
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 right-6 z-[9999] h-14 w-14 rounded-full 
-          bg-foreground text-background
+        className={`fixed bottom-6 right-6 z-[9999] h-16 w-16 rounded-full 
+          bg-background text-foreground border border-border
           shadow-[0_8px_30px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_40px_rgba(0,0,0,0.5)]
           dark:shadow-[0_8px_30px_rgba(255,255,255,0.1)] dark:hover:shadow-[0_8px_40px_rgba(255,255,255,0.2)]
-          flex items-center justify-center cursor-pointer
-          transition-all duration-300 hover:scale-110 active:scale-95
-          border border-border group
+          flex items-center justify-center cursor-pointer overflow-hidden
+          transition-all duration-300 hover:scale-105 active:scale-95 group
           ${isOpen ? 'opacity-0 pointer-events-none scale-75' : 'opacity-100'}`}
         aria-label="Open AI Chat"
       >
-        {/* Pulse ring */}
-        <span className="absolute inset-0 rounded-full bg-foreground/30 animate-ping opacity-30" />
-        {/* Icon */}
-        <svg
-          className="w-6 h-6 relative z-10 group-hover:rotate-12 transition-transform"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-          <path d="M8 10h.01" />
-          <path d="M12 10h.01" />
-          <path d="M16 10h.01" />
-        </svg>
+        {/* Pulse aura */}
+        <span className="absolute inset-0 rounded-full bg-foreground/10 animate-ping opacity-30" />
+        
+        {/* ThinkingOrb (64px) embedded */}
+        <div className="relative z-10 flex items-center justify-center">
+          <ThinkingOrb state={orbState} size={64} />
+        </div>
       </button>
 
       {/* Portal-rendered sidebar */}
       {mounted &&
         createPortal(
-          <ChatPanel isOpen={isOpen} onClose={() => setIsOpen(false)} />,
+          <ChatPanel
+            isOpen={isOpen}
+            onClose={() => setIsOpen(false)}
+            orbState={orbState}
+            setOrbState={setOrbState}
+          />,
           document.body
         )}
     </>
   );
 }
+
