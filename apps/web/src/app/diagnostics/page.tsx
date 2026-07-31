@@ -333,12 +333,11 @@ export default function DiagnosticsPage() {
               Incident Replay
             </button>
           </div>
-          <nav className="text-xs font-medium text-bodydark2 font-mono flex items-center gap-1.5">
-              <span className="hover:text-white cursor-default">Telemetry</span>
-              <span>/</span>
-              <span className="text-primary">Diagnostics</span>
-            </nav>
-          </div>
+          <nav className="text-xs font-medium text-bodydark2 font-mono flex items-center gap-1.5 mb-6">
+            <span className="hover:text-white cursor-default">Telemetry</span>
+            <span>/</span>
+            <span className="text-primary">Diagnostics</span>
+          </nav>
 
           {/* TOP CONSOLE: Health Score & Calibration */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 xl:gap-7.5 mb-7.5">
