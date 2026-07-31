@@ -71,6 +71,22 @@ def intelligence():
     from ..services.ai_service import ai_service
     return jsonable_encoder(ai_service.get_insight())
 
+@router.get("/anomaly", summary="ML Predictive Maintenance Report")
+def anomaly():
+    """
+    Returns the latest anomaly detection report produced by the on-device
+    ML engine (scikit-learn Isolation Forest + Z-score rolling window).
+
+    - **model_status**: `warming_up` while collecting baseline (< 30 ticks),
+      `trained` once the Isolation Forest has been fitted.
+    - **composite_risk_score**: 0.0 = fully normal, 1.0 = severe anomaly.
+    - **features**: per-sensor value, mean, std, z-score, and anomaly flag.
+    - **isolation_forest_score**: raw IF decision function score (null when warming up).
+    """
+    from ..services.anomaly_service import anomaly_service
+    return jsonable_encoder(anomaly_service.get_report())
+
+
 @router.get("/settings")
 def get_settings():
     return jsonable_encoder(runtime_service.settings)

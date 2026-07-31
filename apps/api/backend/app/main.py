@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .api.routes import router
 from .core.config import get_settings
 from .services.runtime_service import runtime_service
+from .services.anomaly_service import anomaly_service
 from .database.session import get_session_factory, Base
 
 
@@ -13,7 +14,11 @@ async def tick_loop():
     """Continuously advance the headless runtime engine every 5 seconds."""
     while True:
         try:
-            runtime_service.advance(1)
+            snapshot = runtime_service.advance(1)
+            # Feed fresh telemetry into the ML predictive maintenance engine.
+            # The anomaly service accumulates a rolling buffer and trains an
+            # Isolation Forest model once TRAINING_THRESHOLD samples are collected.
+            anomaly_service.ingest(snapshot)
         except Exception as e:
             logging.error(f"Failed to advance simulation: {e}")
         await asyncio.sleep(5)
