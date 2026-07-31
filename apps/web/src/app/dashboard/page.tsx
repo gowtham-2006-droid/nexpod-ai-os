@@ -27,7 +27,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 
-import { api, RuntimeInfo, HealthStatus } from '../../lib/api';
+import { api, RuntimeInfo, HealthStatus, WsTelemetrySnapshot } from '../../lib/api';
 import { CircularProgress } from '../../components/CircularProgress';
 import { RevenueChart } from '../../components/RevenueChart';
 import { HourlyOrdersChart } from '../../components/HourlyOrdersChart';
@@ -36,6 +36,7 @@ import { Sidebar } from '../../components/Sidebar';
 import { Header } from '../../components/Header';
 import { useLiveClock } from '../../hooks/useLiveClock';
 import { usePolling } from '../../hooks/usePolling';
+import { useWebSocket, WsStatus } from '../../hooks/useWebSocket';
 import { logger } from '../../lib/logger';
 import { AlertItem, InventoryItem } from '../../types';
 
@@ -76,6 +77,7 @@ export default function Home() {
   const [inventory, setInventory] = useState<any[]>([]);
   const liveTime = useLiveClock();
   const [analysisTimer, setAnalysisTimer] = useState(4);
+  const [wsStatus, setWsStatus] = useState<WsStatus>('connecting');
   const [chartData, setChartData] = useState<{
     revenue: {
       today: Array<{ label: string; revenue: number }>;
@@ -314,7 +316,53 @@ export default function Home() {
     }
   };
 
-  usePolling(fetchLiveData, 5000);
+  usePolling(fetchLiveData, 5000, [], wsStatus !== 'open');
+
+  // ── WebSocket: real-time push handler ──────────────────────────────────────
+  const handleWsMessage = (data: WsTelemetrySnapshot) => {
+    if (data.type === 'ping') return;
+    setError(false);
+    setLoading(false);
+    setNotifications(data.dashboard.alerts);
+    setRuntimeData({ ...runtimeData, ...data.runtime } as RuntimeInfo);
+
+    setKpiState({
+      revenue:          { value: `₹${data.dashboard.revenue.toLocaleString('en-IN')}`, label: "Today's Revenue", change: '+14.2%', trend: 'up' },
+      orders:           { value: data.dashboard.orders.toString(), label: "Today's Orders", change: '+8.5%', trend: 'up' },
+      machineHealth:    { value: `${data.dashboard.machineHealth}%`, label: 'Machine Health', change: '-0.3%', trend: 'down' },
+      inventoryHealth:  { value: `${data.dashboard.inventoryHealth}%`, label: 'Inventory Health', change: '-4.1%', trend: 'down', status: data.dashboard.inventoryHealth < 75 ? 'warning' : 'nominal' },
+      activeAlertsCount:{ value: data.dashboard.alerts, label: 'Active Alerts', details: `${data.dashboard.alerts} alerts pending` },
+    });
+
+    if (data.alerts) {
+      setActiveAlerts(data.alerts.map((a) => ({
+        id: a.id,
+        code: a.code,
+        title: a.code.includes('milk') ? 'Milk Low' : a.code.includes('water') ? 'Water Low' : 'Subsystem Check',
+        message: a.message,
+        severity: a.severity,
+        timestamp: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+        action: a.code.includes('milk') ? 'Refill Milk' : 'Schedule Service',
+      })));
+    }
+
+    if (data.inventory) {
+      setInventory(data.inventory.map((item, index) => ({
+        id: (index + 1).toString(),
+        name: item.name,
+        current: item.quantity,
+        actualValue: parseFloat(((item.quantity * item.capacity) / 100).toFixed(2)),
+        maxValue: item.capacity,
+        unit: item.sku === 'water' ? 'Liters' : 'Kg',
+        status: item.quantity <= item.reorder_point ? 'warning' : 'nominal',
+      })));
+    }
+  };
+
+  const { status: wsStatusVal } = useWebSocket<WsTelemetrySnapshot>({
+    onMessage: handleWsMessage,
+  });
+  useEffect(() => { setWsStatus(wsStatusVal); }, [wsStatusVal]);
 
   const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'info' | 'error' }>({
     show: false,

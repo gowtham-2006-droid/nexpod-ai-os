@@ -27,6 +27,8 @@ import { Sidebar } from '../../components/Sidebar';
 import { Header } from '../../components/Header';
 import { useLiveClock } from '../../hooks/useLiveClock';
 import { usePolling } from '../../hooks/usePolling';
+import { useWebSocket, WsStatus } from '../../hooks/useWebSocket';
+import { WsTelemetrySnapshot } from '../../lib/api';
 import { logger } from '../../lib/logger';
 
 interface SensorCardProps {
@@ -65,6 +67,7 @@ export default function TelemetryPage() {
   const liveTime = useLiveClock();
   const [simMode, setSimMode] = useState('Evening Rush');
   const [showDebug, setShowDebug] = useState(false);
+  const [wsStatus, setWsStatus] = useState<WsStatus>('connecting');
 
   // Live pod status state
   const [podStatus, setPodStatus] = useState({
@@ -135,6 +138,106 @@ export default function TelemetryPage() {
     }, 1000);
     return () => clearInterval(interval);
   }, []);
+
+  // ── WebSocket: real-time push handler ──────────────────────────────────────
+  const handleWsMessage = (data: WsTelemetrySnapshot) => {
+    if (data.type === 'ping') return;
+    setLastSyncSeconds(0);
+    setNotifications(data.dashboard.alerts);
+    setSimMode(data.dashboard.simulationMode);
+
+    setPodStatus({
+      activity: data.dashboard.alerts > 0 ? 'Preparing Cappuccino' : 'Idle (Nominal)',
+      queue: data.dashboard.alerts > 0 ? '3 Orders' : '0 Orders',
+      avgPrepTime: '52 sec',
+      ordersThisHour: data.dashboard.orders,
+      revenue: `₹${data.dashboard.revenue.toLocaleString('en-IN')}`,
+      runtimeTick: data.runtime.runtimeTick,
+      uptime: data.runtime.uptime,
+    });
+
+    if (data.telemetry && data.telemetry[0]) {
+      const t = data.telemetry[0];
+      const currentVal = (t.power_draw_w / 230).toFixed(1);
+
+      let waterPercent = 78, milkPercent = 42, beansPercent = 67;
+      if (data.inventory) {
+        const waterItem = data.inventory.find((i) => i.sku === 'water');
+        const milkItem  = data.inventory.find((i) => i.sku === 'cold-brew');
+        const beansItem = data.inventory.find((i) => i.sku === 'protein-bar');
+        if (waterItem) waterPercent = waterItem.quantity;
+        if (milkItem)  milkPercent  = milkItem.quantity;
+        if (beansItem) beansPercent = beansItem.quantity;
+      }
+
+      setSensors({
+        temperature: `${Math.round(t.temperature_c)}°C`,
+        humidity: '42%',
+        voltage: '230V',
+        powerDraw: `${(t.power_draw_w / 1000).toFixed(1)} kW`,
+        latency: `${Math.round(t.network_latency_ms)}ms`,
+        cpu: '24%',
+        memory: '38%',
+        water: `${waterPercent}%`,
+        milk: `${milkPercent}%`,
+        beans: `${beansPercent}%`,
+        current: `${currentVal} A`,
+      });
+
+      const isMilkLow  = milkPercent  <= 45;
+      const isWaterLow = waterPercent <= 30;
+      const isBeansLow = beansPercent <= 30;
+      setDynamicSubsystems({
+        coffee_machine: { name: 'Coffee Machine', status: 'Healthy', color: 'text-chart-2', desc: 'Main espresso brewer & steam valves operating nominal.' },
+        water_tank:     { name: 'Water Tank',     status: isWaterLow ? 'Warning' : 'Healthy', color: isWaterLow ? 'text-chart-4' : 'text-chart-2', desc: `Water reservoir at ${waterPercent}%.` },
+        milk_tank:      { name: 'Milk Tank',      status: isMilkLow  ? 'Warning' : 'Healthy', color: isMilkLow  ? 'text-chart-4' : 'text-chart-2', desc: `Milk level at ${milkPercent}%. ${isMilkLow ? 'Drone auto-refill warning.' : 'Reserves nominal.'}` },
+        bean_hopper:    { name: 'Bean Hopper',    status: isBeansLow ? 'Warning' : 'Healthy', color: isBeansLow ? 'text-chart-4' : 'text-chart-2', desc: `Coffee beans at ${beansPercent}%.` },
+        pump:           { name: 'Piston Pump',    status: 'Healthy', color: 'text-chart-2', desc: 'Extraction pressure stable at 9.2 Bar.' },
+        door_lock:      { name: 'Door Lock',      status: 'Healthy', color: 'text-chart-2', desc: 'Pneumatic magnetic lock solenoid locked.' },
+        network_module: { name: 'Network Module', status: 'Healthy', color: 'text-chart-2', desc: 'Dual-path telemetry healthy.' },
+        power_supply:   { name: 'Power Supply',   status: 'Healthy', color: 'text-chart-2', desc: 'Input voltage within nominal range.' },
+      });
+    }
+
+    setSystemStatus({
+      backend: data.health.backendStatus === 'Healthy' ? 'Connected' : 'Disconnected',
+      database: 'Connected',
+      runtime: data.health.runtimeStatus === 'Running' ? 'Running' : 'Offline',
+      scheduler: 'Running',
+      api: 'Healthy',
+    });
+
+    setDebugData((prev) => ({
+      ...prev,
+      tick: data.runtime.runtimeTick,
+      simMinute: data.runtime.runtimeTick,
+      ordersGenerated: data.runtime.ordersGenerated,
+      alertsGenerated: data.dashboard.alerts,
+    }));
+
+    setLogs(
+      data.dashboard.alerts > 0
+        ? [
+            { time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }), msg: 'Milk Warning — Level dropped below 45% threshold', type: 'warn' },
+            { time: '14:15:44', msg: 'Door Lock — Micro-vibration detected in lock cycle', type: 'warn' },
+            { time: '13:52:01', msg: 'Heating Unit — Temperature stabilized at 93.5°C', type: 'success' },
+            { time: '13:30:00', msg: 'Internet — Latency spike resolved — gateway rerouted', type: 'info' },
+          ]
+        : [
+            { time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }), msg: 'System — All diagnostic reports passed sweeps', type: 'success' },
+            { time: '13:52:01', msg: 'Heating Unit — Temperature stabilized at 93.5°C', type: 'success' },
+            { time: '13:30:00', msg: 'Internet — Latency spike resolved — gateway rerouted', type: 'info' },
+            { time: '12:10:22', msg: 'Power Supply — UPS battery fully charged', type: 'info' },
+          ]
+    );
+  };
+
+  const { status: wsStatusVal } = useWebSocket<WsTelemetrySnapshot>({
+    onMessage: handleWsMessage,
+  });
+
+  // Sync WS status into local state for the badge
+  useEffect(() => { setWsStatus(wsStatusVal); }, [wsStatusVal]);
 
   // Polling every 5 seconds using custom hook
   const fetchTelemetry = async () => {
@@ -278,7 +381,8 @@ export default function TelemetryPage() {
     }
   };
 
-  usePolling(fetchTelemetry, 5000);
+  // Polling every 5 seconds — disabled when WebSocket is active (avoids duplicate fetches)
+  usePolling(fetchTelemetry, 5000, [], wsStatus !== 'open');
 
   return (
     <div className="flex h-screen overflow-hidden bg-black font-sans text-bodydark">
@@ -300,10 +404,23 @@ export default function TelemetryPage() {
                 <h2 className="text-2xl font-extrabold text-white tracking-tight">
                   Pod Telemetry
                 </h2>
-                <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-meta-3/15 text-meta-3 border border-meta-3/20">
-                  <span className="w-1.5 h-1.5 rounded-full bg-meta-3 animate-pulse" />
-                  🟢 ONLINE
-                </span>
+                {/* Dynamic WebSocket connection status badge */}
+                {wsStatus === 'open' ? (
+                  <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-meta-3/15 text-meta-3 border border-meta-3/20">
+                    <span className="w-1.5 h-1.5 rounded-full bg-meta-3 animate-pulse" />
+                    🟢 LIVE
+                  </span>
+                ) : wsStatus === 'connecting' ? (
+                  <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-chart-4/15 text-chart-4 border border-chart-4/20">
+                    <span className="w-1.5 h-1.5 rounded-full bg-chart-4 animate-pulse" />
+                    🟡 CONNECTING
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-red-500/15 text-red-400 border border-red-500/20">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
+                    🔴 OFFLINE
+                  </span>
+                )}
               </div>
               <p className="text-xs text-bodydark2 mt-1 font-medium font-mono">
                 NexPod Atrium · MISSION CONTROL SYSTEM TELEMETRY STREAM

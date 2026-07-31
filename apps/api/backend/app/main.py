@@ -4,6 +4,7 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .api.routes import router
+from .api.ws import ws_router, ws_manager, _build_snapshot
 from .core.config import get_settings
 from .services.runtime_service import runtime_service
 from .services.anomaly_service import anomaly_service
@@ -15,10 +16,17 @@ async def tick_loop():
     while True:
         try:
             snapshot = runtime_service.advance(1)
-            # Feed fresh telemetry into the ML predictive maintenance engine.
-            # The anomaly service accumulates a rolling buffer and trains an
-            # Isolation Forest model once TRAINING_THRESHOLD samples are collected.
+
+            # 1. Feed fresh telemetry into the ML predictive maintenance engine.
             anomaly_service.ingest(snapshot)
+
+            # 2. Broadcast a rich telemetry snapshot to all live WebSocket clients.
+            #    Only pays the serialisation cost when clients are actually connected.
+            ws_manager.tick_count += 1
+            if ws_manager.connection_count > 0:
+                payload = _build_snapshot(ws_manager.tick_count)
+                await ws_manager.broadcast(payload)
+
         except Exception as e:
             logging.error(f"Failed to advance simulation: {e}")
         await asyncio.sleep(5)
@@ -50,3 +58,4 @@ app.add_middleware(
     allow_headers=["*"]
 )
 app.include_router(router)
+app.include_router(ws_router)  # WebSocket telemetry gateway + /ws/status

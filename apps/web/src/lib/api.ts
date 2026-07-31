@@ -133,6 +133,55 @@ export interface HealthStatus {
   timestamp: string;
 }
 
+export interface AnomalyFeature {
+  value: number;
+  mean: number;
+  std: number;
+  z_score: number;
+  is_anomaly: boolean;
+}
+
+export interface AnomalyReport {
+  pod_id: string;
+  detected_at: string;
+  model_status: 'warming_up' | 'trained';
+  samples_collected: number;
+  anomaly_detected: boolean;
+  composite_risk_score: number;
+  confidence: number;
+  features: {
+    temperature_c?: AnomalyFeature;
+    network_latency_ms?: AnomalyFeature;
+    power_draw_w?: AnomalyFeature;
+  };
+  isolation_forest_score: number | null;
+  diagnosis: string;
+  generated_by: string;
+}
+
+/** Shape of every message pushed from ws://host/ws/telemetry */
+export interface WsTelemetrySnapshot {
+  type: 'telemetry_snapshot' | 'connected' | 'ping' | 'pong';
+  tick: number;
+  timestamp: string;
+  telemetry: TelemetryData[];
+  dashboard: {
+    revenue: number;
+    orders: number;
+    machineHealth: number;
+    inventoryHealth: number;
+    alerts: number;
+    podStatus: string;
+    simulationMode: string;
+    averageOrderValue: number;
+  };
+  alerts: Array<{ id: string; code: string; severity: string; message: string }>;
+  inventory: Array<{ sku: string; name: string; quantity: number; capacity: number; reorder_point: number }>;
+  runtime: RuntimeInfo;
+  health: Pick<HealthStatus, 'backendStatus' | 'runtimeStatus'>;
+  anomaly: Pick<AnomalyReport, 'model_status' | 'anomaly_detected' | 'composite_risk_score' | 'confidence' | 'diagnosis' | 'samples_collected' | 'generated_by'>;
+}
+
 async function request<T>(url: string, options?: RequestInit): Promise<T> {
   const res = await fetch(url, {
     headers: { 'Content-Type': 'application/json' },
@@ -181,6 +230,7 @@ export const api = {
     }),
   getRuntime: () => request<RuntimeInfo>('/api/runtime'),
   getHealth: () => request<HealthStatus>('/api/health'),
+  getAnomaly: () => request<AnomalyReport>('/api/anomaly'),
   
   postChat: (messages: Array<{ role: string; content: string }>) =>
     request<{ response: string }>('/api/chat', {
