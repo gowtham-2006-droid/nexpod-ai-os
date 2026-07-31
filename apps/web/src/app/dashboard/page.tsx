@@ -340,7 +340,7 @@ export default function Home() {
         code: a.code,
         title: a.code.includes('milk') ? 'Milk Low' : a.code.includes('water') ? 'Water Low' : 'Subsystem Check',
         message: a.message,
-        severity: a.severity,
+        severity: a.severity as 'critical' | 'warning' | 'info',
         timestamp: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
         action: a.code.includes('milk') ? 'Refill Milk' : 'Schedule Service',
       })));
