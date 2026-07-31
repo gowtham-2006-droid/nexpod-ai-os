@@ -817,9 +817,6 @@ export default function LandingPage() {
         }}
       />
 
-      {/* AI Chat Sidebar */}
-      <AIChatSidebar />
-
     </div>
   );
 }

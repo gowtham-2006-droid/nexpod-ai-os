@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
+import AIChatSidebar from "@/components/ui/ai-chat-sidebar";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
@@ -23,7 +24,11 @@ export default function RootLayout({
       lang="en"
       className={cn("dark", "h-full", "antialiased", geistSans.variable, geistMono.variable, "font-sans", geist.variable)}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <AIChatSidebar />
+      </body>
     </html>
   );
 }
+

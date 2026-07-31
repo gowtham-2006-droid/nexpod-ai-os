@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { ThinkingOrb } from 'thinking-orbs';
 import {
   TrendingUp,
   Layers,
@@ -195,18 +196,27 @@ export default function IntelligencePage() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="md:col-span-8 rounded-2xl border border-strokedark bg-boxdark p-6 shadow-default flex flex-col justify-between"
+              className="md:col-span-8 rounded-2xl border border-strokedark bg-boxdark p-6 shadow-default flex flex-col justify-between relative overflow-hidden"
             >
               <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="text-lg font-bold text-white tracking-tight">
-                    Model Decision Console
-                  </h3>
-                  <p className="text-xs text-bodydark mt-2 font-mono leading-relaxed max-w-[500px]">
-                    {intelData?.summary || "Analyzing telemetry log matrices..."}
-                  </p>
+                <div className="flex items-start gap-4">
+                  {/* Embedded AI Composing Orb Animation */}
+                  <div className="relative shrink-0 p-2 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+                    <ThinkingOrb state="composing" size={48} />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
+                      Model Decision Console
+                      <span className="text-[9px] font-mono font-bold text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded border border-purple-500/20 uppercase">
+                        AI Composing
+                      </span>
+                    </h3>
+                    <p className="text-xs text-bodydark mt-2 font-mono leading-relaxed max-w-[500px]">
+                      {intelData?.summary || "Analyzing telemetry log matrices..."}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-mono text-chart-2 bg-chart-2/10 border border-chart-2/20">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-mono text-chart-2 bg-chart-2/10 border border-chart-2/20 shrink-0">
                   <Cpu className="w-3.5 h-3.5" />
                   <span>MODEL STATUS: ACTIVE</span>
                 </div>
