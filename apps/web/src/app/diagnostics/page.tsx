@@ -17,6 +17,7 @@ import {
   Coffee,
   AlertTriangle,
   Clock,
+  RotateCcw,
 } from 'lucide-react';
 
 import { api } from '../../lib/api';
@@ -25,6 +26,7 @@ import { Sidebar } from '../../components/Sidebar';
 import { Header } from '../../components/Header';
 import { useLiveClock } from '../../hooks/useLiveClock';
 import { usePolling } from '../../hooks/usePolling';
+import { IncidentReplayDrawer } from '../../components/IncidentReplayDrawer';
 import { logger } from '../../lib/logger';
 
 // Map component icon hint string → Lucide icon
@@ -132,6 +134,7 @@ export default function DiagnosticsPage() {
   const [healthScore, setHealthScore] = useState(95.5);
   const [uptime, setUptime] = useState('00:00:00');
   const [runtimeTick, setRuntimeTick] = useState(0);
+  const [isReplayOpen, setIsReplayOpen] = useState(false);
 
   // Timeline events state
   const [timelineEvents, setTimelineEvents] = useState<Array<{
@@ -225,6 +228,25 @@ export default function DiagnosticsPage() {
 
   usePolling(fetchMachine, 5000);
 
+  // Synchronize diagnostics UI state with historical incident replay snapshots
+  const handleReplaySnapshot = (snap: any) => {
+    if (!snap) return;
+    if (snap.machineHealth !== undefined) setHealthScore(snap.machineHealth);
+    if (snap.temperature_c !== undefined) {
+      setComponents((prev) =>
+        prev.map((c) =>
+          c.id === 'heating'
+            ? {
+                ...c,
+                temp: `${Math.round(snap.temperature_c)}°C`,
+                status: snap.temperature_c > 80 ? 'critical' : 'operational',
+              }
+            : c
+        )
+      );
+    }
+  };
+
   const triggerAction = (name: string, detail: string) => {
     setToast({ show: true, message: `${name} — ${detail}` });
     setTimeout(() => setToast((p) => ({ ...p, show: false })), 4000);
@@ -287,7 +309,7 @@ export default function DiagnosticsPage() {
 
         <main className="p-4 md:p-6 2xl:p-10 max-w-[1500px] w-full mx-auto">
           {/* Page Title */}
-          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 mb-6">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Wrench className="h-5 w-5" />
@@ -301,7 +323,17 @@ export default function DiagnosticsPage() {
                 </span>
               </div>
             </div>
-            <nav className="text-xs font-medium text-bodydark2 font-mono flex items-center gap-1.5">
+
+            {/* INCIDENT REPLAY BUTTON */}
+            <button
+              onClick={() => setIsReplayOpen(true)}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-mono font-bold transition-all shadow-sm hover:scale-[1.02] self-start sm:self-auto"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              Incident Replay
+            </button>
+          </div>
+          <nav className="text-xs font-medium text-bodydark2 font-mono flex items-center gap-1.5">
               <span className="hover:text-white cursor-default">Telemetry</span>
               <span>/</span>
               <span className="text-primary">Diagnostics</span>
@@ -550,6 +582,13 @@ export default function DiagnosticsPage() {
           </div>
         </footer>
       </div>
+
+      {/* INCIDENT REPLAY DRAWER */}
+      <IncidentReplayDrawer
+        isOpen={isReplayOpen}
+        onClose={() => setIsReplayOpen(false)}
+        onReplaySnapshot={handleReplaySnapshot}
+      />
     </div>
   );
 }

@@ -25,6 +25,8 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   RefreshCw,
+  RotateCcw,
+  History,
 } from 'lucide-react';
 
 import { api, RuntimeInfo, HealthStatus, WsTelemetrySnapshot } from '../../lib/api';
@@ -37,6 +39,7 @@ import { Header } from '../../components/Header';
 import { useLiveClock } from '../../hooks/useLiveClock';
 import { usePolling } from '../../hooks/usePolling';
 import { useWebSocket, WsStatus } from '../../hooks/useWebSocket';
+import { IncidentReplayDrawer } from '../../components/IncidentReplayDrawer';
 import { logger } from '../../lib/logger';
 import { AlertItem, InventoryItem } from '../../types';
 
@@ -78,6 +81,7 @@ export default function Home() {
   const liveTime = useLiveClock();
   const [analysisTimer, setAnalysisTimer] = useState(4);
   const [wsStatus, setWsStatus] = useState<WsStatus>('connecting');
+  const [isReplayOpen, setIsReplayOpen] = useState(false);
   const [chartData, setChartData] = useState<{
     revenue: {
       today: Array<{ label: string; revenue: number }>;
@@ -364,6 +368,29 @@ export default function Home() {
   });
   useEffect(() => { setWsStatus(wsStatusVal); }, [wsStatusVal]);
 
+  // Synchronize dashboard UI state with historical incident replay snapshots
+  const handleReplaySnapshot = (snap: any) => {
+    if (!snap) return;
+    if (snap.revenue !== undefined || snap.orders !== undefined) {
+      setKpiState((prev) => ({
+        ...prev,
+        revenue: snap.revenue !== undefined ? { ...prev.revenue, value: `₹${snap.revenue.toLocaleString('en-IN')}` } : prev.revenue,
+        orders: snap.orders !== undefined ? { ...prev.orders, value: snap.orders.toString() } : prev.orders,
+        machineHealth: snap.machineHealth !== undefined ? { ...prev.machineHealth, value: `${snap.machineHealth}%` } : prev.machineHealth,
+        inventoryHealth: snap.inventoryHealth !== undefined ? { ...prev.inventoryHealth, value: `${snap.inventoryHealth}%` } : prev.inventoryHealth,
+      }));
+    }
+
+    if (snap.aiInsight) {
+      setAiHero((prev) => ({
+        ...prev,
+        insight: snap.aiInsight,
+        risk: snap.alertMessage?.includes('CRITICAL') ? 'HIGH' : 'MEDIUM',
+        priority: snap.alertMessage?.includes('CRITICAL') ? 'HIGH' : 'LOW',
+      }));
+    }
+  };
+
   const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'info' | 'error' }>({
     show: false,
     message: '',
@@ -570,7 +597,16 @@ export default function Home() {
               </p>
             </div>
             
-            <div className="flex flex-wrap gap-3 text-xs font-mono text-bodydark2">
+            <div className="flex flex-wrap gap-3 text-xs font-mono text-bodydark2 items-center">
+              {/* INCIDENT REPLAY BUTTON */}
+              <button
+                onClick={() => setIsReplayOpen(true)}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold transition-all shadow-sm hover:scale-[1.02]"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                Incident Replay
+              </button>
+
               <div className="bg-boxdark border border-strokedark px-3 py-1.5 rounded-lg flex items-center gap-1.5">
                 <Brain className="w-3.5 h-3.5 text-chart-2 animate-pulse" />
                 <span>AI Status: <span className="text-chart-2 font-bold">🟢 Monitoring</span> <span className="text-bodydark2">({analysisTimer}s ago)</span></span>
@@ -1058,6 +1094,13 @@ export default function Home() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* INCIDENT REPLAY DRAWER */}
+      <IncidentReplayDrawer
+        isOpen={isReplayOpen}
+        onClose={() => setIsReplayOpen(false)}
+        onReplaySnapshot={handleReplaySnapshot}
+      />
     </div>
   );
 }

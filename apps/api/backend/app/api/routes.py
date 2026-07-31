@@ -87,6 +87,17 @@ def anomaly():
     return jsonable_encoder(anomaly_service.get_report())
 
 
+@router.get("/incidents", summary="Incident Replay Timeline Events")
+def incidents():
+    """
+    Returns chronological operational events leading to an incident/alert
+    for step-by-step UI replay. Maintains the latest 200 events in memory.
+    """
+    from ..services.incident_service import incident_service
+    return jsonable_encoder(incident_service.get_incidents())
+
+
+
 @router.get("/settings")
 def get_settings():
     return jsonable_encoder(runtime_service.settings)

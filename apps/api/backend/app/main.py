@@ -8,6 +8,7 @@ from .api.ws import ws_router, ws_manager, _build_snapshot
 from .core.config import get_settings
 from .services.runtime_service import runtime_service
 from .services.anomaly_service import anomaly_service
+from .services.incident_service import incident_service
 from .database.session import get_session_factory, Base
 
 
@@ -20,7 +21,10 @@ async def tick_loop():
             # 1. Feed fresh telemetry into the ML predictive maintenance engine.
             anomaly_service.ingest(snapshot)
 
-            # 2. Broadcast a rich telemetry snapshot to all live WebSocket clients.
+            # 2. Ingest telemetry events into incident replay engine.
+            incident_service.ingest_from_snapshot(snapshot)
+
+            # 3. Broadcast a rich telemetry snapshot to all live WebSocket clients.
             #    Only pays the serialisation cost when clients are actually connected.
             ws_manager.tick_count += 1
             if ws_manager.connection_count > 0:

@@ -159,6 +159,37 @@ export interface AnomalyReport {
   generated_by: string;
 }
 
+export interface IncidentMetadata {
+  podId: string;
+  podName: string;
+  severity?: 'info' | 'warning' | 'critical';
+  snapshot?: {
+    temperature_c?: number;
+    power_draw_w?: number;
+    network_latency_ms?: number;
+    machineHealth?: number;
+    inventoryHealth?: number;
+    revenue?: number;
+    orders?: number;
+    alertMessage?: string;
+    aiInsight?: string;
+  };
+}
+
+export interface IncidentEvent {
+  id: string;
+  timestamp: string;
+  type: 'telemetry' | 'inventory' | 'order' | 'diagnostic' | 'ai' | 'alert' | 'maintenance';
+  title: string;
+  description: string;
+  metadata: IncidentMetadata;
+}
+
+export interface IncidentsResponse {
+  generated_at: string;
+  events: IncidentEvent[];
+}
+
 /** Shape of every message pushed from ws://host/ws/telemetry */
 export interface WsTelemetrySnapshot {
   type: 'telemetry_snapshot' | 'connected' | 'ping' | 'pong';
@@ -231,6 +262,7 @@ export const api = {
   getRuntime: () => request<RuntimeInfo>('/api/runtime'),
   getHealth: () => request<HealthStatus>('/api/health'),
   getAnomaly: () => request<AnomalyReport>('/api/anomaly'),
+  getIncidents: () => request<IncidentsResponse>('/api/incidents'),
   
   postChat: (messages: Array<{ role: string; content: string }>) =>
     request<{ response: string }>('/api/chat', {
