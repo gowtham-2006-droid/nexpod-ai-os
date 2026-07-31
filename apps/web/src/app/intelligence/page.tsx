@@ -201,8 +201,8 @@ export default function IntelligencePage() {
               <div className="flex justify-between items-start">
                 <div className="flex items-start gap-4">
                   {/* Embedded AI Composing Orb Animation */}
-                  <div className="relative shrink-0 p-2 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
-                    <ThinkingOrb state="composing" size={48} />
+                  <div className="relative shrink-0 p-1.5 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+                    <ThinkingOrb state="composing" size={64} />
                   </div>
                   <div>
                     <h3 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
