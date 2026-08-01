@@ -324,24 +324,21 @@ export default function Home() {
       logger.error("Dashboard REST fetching failed, activating Demo Mode fallback:", err);
       
       // Fallback demo data so UI operates seamlessly when local backend server is offline
-      setKpiData({
-        revenue: '₹49,850',
-        revenueChange: '+14.2%',
-        orders: 142,
-        ordersChange: '+8.5%',
-        machineHealth: 93,
-        inventoryHealth: 78,
-        activeAlerts: 1,
-        rating: 4.9,
+      setKpiState({
+        revenue: { value: '₹49,850', label: "Today's Revenue", change: '+14.2%', trend: 'up' },
+        orders: { value: '142', label: "Today's Orders", change: '+8.5%', trend: 'up' },
+        machineHealth: { value: '93%', label: 'Machine Health', change: '-0.3%', trend: 'down' },
+        inventoryHealth: { value: '78%', label: 'Inventory Health', change: '-4.1%', trend: 'down', status: 'nominal' },
+        activeAlertsCount: { value: 1, label: 'Active Alerts', details: '1 alert pending' },
       });
 
       setAiHero({
-        summary: 'All pod systems operating within nominal operational bounds. Evening rush telemetry active.',
+        insight: 'All pod systems operating within nominal operational bounds. Evening rush telemetry active.',
         priority: 'LOW',
-        risk: 'LOW',
+        risk: 'None',
         confidence: 96,
-        recommendation: 'Refill milk reservoir within next 8 operational hours to avoid queue delay.',
-        action: 'Review Action Plan',
+        action: 'Review Action Plan →',
+        replenished: false,
       });
 
       setBeverageMix({
