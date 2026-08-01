@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ChartColumn } from '@/components/animate-ui/icons/chart-column';
+import { Unplug } from '@/components/animate-ui/icons/unplug';
 import {
   Radio,
   Clock,
@@ -401,7 +403,8 @@ export default function TelemetryPage() {
           <div className="flex flex-col lg:flex-row justify-between lg:items-center gap-4 mb-6 border-b border-strokedark pb-6">
             <div>
               <div className="flex items-center gap-2.5">
-                <h2 className="text-2xl font-extrabold text-white tracking-tight">
+                <h2 className="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
+                  <ChartColumn animateOnHover className="w-6 h-6 text-primary" />
                   Pod Telemetry
                 </h2>
                 {/* Dynamic WebSocket connection status badge */}
@@ -416,9 +419,9 @@ export default function TelemetryPage() {
                     🟡 CONNECTING
                   </span>
                 ) : (
-                  <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-red-500/15 text-red-400 border border-red-500/20">
-                    <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
-                    🔴 OFFLINE
+                  <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-red-500/15 text-red-400 border border-red-500/20">
+                    <Unplug animateOnHover className="w-3 h-3 text-red-400" />
+                    OFFLINE
                   </span>
                 )}
               </div>

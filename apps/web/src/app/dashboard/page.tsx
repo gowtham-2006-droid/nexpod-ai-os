@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { Unplug } from '@/components/animate-ui/icons/unplug';
+import { RotateCcw } from '@/components/animate-ui/icons/rotate-ccw';
 import {
   TrendingUp,
   TrendingDown,
@@ -25,7 +27,6 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   RefreshCw,
-  RotateCcw,
   History,
 } from 'lucide-react';
 
@@ -644,7 +645,7 @@ export default function Home() {
                 onClick={() => setIsReplayOpen(true)}
                 className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold transition-all shadow-sm hover:scale-[1.02]"
               >
-                <RotateCcw className="w-3.5 h-3.5" />
+                <RotateCcw animateOnHover className="w-3.5 h-3.5" />
                 Incident Replay
               </button>
 

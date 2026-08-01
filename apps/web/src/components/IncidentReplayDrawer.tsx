@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { RotateCcw } from '@/components/animate-ui/icons/rotate-ccw';
 import {
   X,
   Play,
   Pause,
-  RotateCcw,
   ShoppingCart,
   Database,
   Thermometer,
