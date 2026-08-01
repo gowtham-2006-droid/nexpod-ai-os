@@ -245,103 +245,103 @@ export default function LandingPage() {
         numberOfLines={70}
         numberOfDiscs={65}
         particleRGBColor={[16, 185, 129]}
-        className="w-full h-full min-h-screen flex flex-col justify-center border-b border-[#21262D]"
+        className="w-full min-h-screen flex flex-col justify-center border-b border-[#21262D]"
       >
-        <section className="relative min-h-screen flex flex-col justify-center pt-24 sm:pt-28 md:pt-32 pb-16 overflow-hidden">
+        <section className="relative min-h-screen w-full flex items-center justify-center pt-20 pb-12 lg:py-16 overflow-hidden">
           {/* Subtle Meteors */}
-          <Meteors number={12} minDuration={4} maxDuration={8} className="opacity-40" />
+          <Meteors number={14} minDuration={4} maxDuration={8} className="opacity-40" />
 
-        <div className="max-w-7xl mx-auto px-6 md:px-12 w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
-          {/* Left Column - Text Details under the Lamp spotlight */}
-          <div className="lg:col-span-7 flex flex-col items-start text-left space-y-6">
-            {/* Lamp Container wrapping ONLY the heading */}
-            <LampContainer 
-              className="h-[400px] min-h-[400px] bg-transparent w-full justify-start items-start text-left"
-              contentClassName="items-start px-0 w-full"
-            >
-              <div className="space-y-3 relative py-4 w-full text-left">
-                {/* Sparkles Core Background for Text */}
-                <div className="absolute inset-0 w-full h-full z-0 pointer-events-none">
-                  <SparklesCore
-                    id="hero-sparkles"
-                    background="transparent"
-                    minSize={0.4}
-                    maxSize={1.4}
-                    particleDensity={60}
-                    className="w-full h-full"
-                    particleColor="var(--foreground)"
-                    speed={0.3}
-                  />
+          <div className="w-full max-w-[1600px] 2xl:max-w-[1850px] mx-auto px-6 sm:px-10 md:px-14 lg:px-16 xl:px-20 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 xl:gap-20 2xl:gap-24 items-center relative z-10">
+            {/* Left Column - Text Details under the Lamp spotlight */}
+            <div className="lg:col-span-6 xl:col-span-6 2xl:col-span-6 flex flex-col items-start text-left space-y-6 lg:space-y-8">
+              {/* Lamp Container wrapping ONLY the heading */}
+              <LampContainer 
+                className="h-[340px] sm:h-[380px] md:h-[420px] lg:h-[440px] min-h-[320px] bg-transparent w-full justify-start items-start text-left"
+                contentClassName="items-start px-0 w-full"
+              >
+                <div className="space-y-3 relative py-2 w-full text-left">
+                  {/* Sparkles Core Background for Text */}
+                  <div className="absolute inset-0 w-full h-full z-0 pointer-events-none">
+                    <SparklesCore
+                      id="hero-sparkles"
+                      background="transparent"
+                      minSize={0.4}
+                      maxSize={1.4}
+                      particleDensity={60}
+                      className="w-full h-full"
+                      particleColor="var(--foreground)"
+                      speed={0.3}
+                    />
+                  </div>
+                  
+                  <div className="relative z-10 pointer-events-auto">
+                    <span className="text-xs sm:text-sm font-mono text-primary uppercase tracking-[0.25em] font-bold block mb-2">
+                      NexPod AI Operating System
+                    </span>
+                    <KineticText
+                      text="The AI Operating System"
+                      as="h1"
+                      className="text-4xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-black text-foreground tracking-tight leading-[1.05] justify-start"
+                    />
+                  </div>
                 </div>
-                
-                <div className="relative z-10 pointer-events-auto">
-                  <span className="text-[10px] font-mono text-primary uppercase tracking-[0.25em] font-bold block mb-1">
-                    NexPod AI Operating System
-                  </span>
-                  <KineticText
-                    text="The AI Operating System"
-                    as="h1"
-                    className="text-4xl md:text-5xl lg:text-6xl font-black text-foreground tracking-tight leading-[1.05] justify-start"
-                  />
+              </LampContainer>
+
+              {/* Rest of Hero contents positioned below the Lamp */}
+              <div className="w-full flex flex-col items-start text-left space-y-6 lg:space-y-8 -mt-32 sm:-mt-36 md:-mt-40 pb-4 relative z-20">
+                {/* Highlighter highlights */}
+                <div className="flex flex-wrap items-center gap-y-3 gap-x-4 pt-1">
+                  <Highlighter action="highlight" color="var(--hero-highlight-bg, rgba(255, 255, 255, 0.08))" strokeWidth={2}>
+                    <span className="text-foreground font-mono text-xs md:text-sm lg:text-base px-3 py-1 rounded border border-foreground/10">
+                      Autonomous Retail Pods
+                    </span>
+                  </Highlighter>
+                  <Highlighter action="underline" color="rgba(255, 214, 0, 0.4)">
+                    <span className="text-yellow-400 font-mono text-xs md:text-sm lg:text-base">
+                      Predictive Intelligence
+                    </span>
+                  </Highlighter>
+                  <Highlighter action="box" color="rgba(41, 182, 246, 0.4)">
+                    <span className="text-cyan-400 font-mono text-xs md:text-sm lg:text-base px-1.5">
+                      AI Operations
+                    </span>
+                  </Highlighter>
                 </div>
-              </div>
-            </LampContainer>
 
-            {/* Rest of Hero contents positioned below the Lamp */}
-            <div className="w-full flex flex-col items-start text-left space-y-6 -mt-40 pb-8 relative z-20">
-              {/* Highlighter highlights */}
-              <div className="flex flex-wrap items-center gap-y-3 gap-x-4 pt-1">
-                <Highlighter action="highlight" color="var(--hero-highlight-bg, rgba(255, 255, 255, 0.08))" strokeWidth={2}>
-                  <span className="text-foreground font-mono text-xs md:text-sm px-2 py-0.5 rounded border border-foreground/10">
-                    Autonomous Retail Pods
-                  </span>
-                </Highlighter>
-                <Highlighter action="underline" color="rgba(255, 214, 0, 0.4)">
-                  <span className="text-yellow-400 font-mono text-xs md:text-sm">
-                    Predictive Intelligence
-                  </span>
-                </Highlighter>
-                <Highlighter action="box" color="rgba(41, 182, 246, 0.4)">
-                  <span className="text-cyan-400 font-mono text-xs md:text-sm px-1">
-                    AI Operations
-                  </span>
-                </Highlighter>
-              </div>
+                <p className="text-sm sm:text-base md:text-lg lg:text-xl text-bodydark2 leading-relaxed max-w-xl lg:max-w-2xl xl:max-w-3xl">
+                  NexPod AI OS leverages real-time telemetry pipelines, Postgres persistence, and custom LLM inference loops to orchestrate self-service retail pods. Maximize uptime, reduce dispatch costs, and optimize stock dynamically.
+                </p>
 
-              <p className="text-sm md:text-base text-bodydark2 leading-relaxed max-w-xl">
-                NexPod AI OS leverages real-time telemetry pipelines, Postgres persistence, and custom LLM inference loops to orchestrate self-service retail pods. Maximize uptime, reduce dispatch costs, and optimize stock dynamically.
-              </p>
+                {/* Buttons */}
+                <div className="flex flex-col sm:flex-row items-center gap-4 pt-2">
+                  <Link href="/dashboard" onClick={handleLaunchDashboardClick}>
+                    <HoverBorderGradient
+                      containerClassName="rounded-xl border border-foreground/10 shadow-[0_0_25px_rgba(0,0,0,0.08)] dark:shadow-[0_0_25px_rgba(255,255,255,0.08)]"
+                      className="text-xs sm:text-sm md:text-base font-bold font-mono px-7 sm:px-8 py-3.5 sm:py-4 bg-foreground text-background"
+                    >
+                      Launch Dashboard
+                    </HoverBorderGradient>
+                  </Link>
 
-              {/* Buttons */}
-              <div className="flex flex-col sm:flex-row items-center gap-4 pt-4">
-                <Link href="/dashboard" onClick={handleLaunchDashboardClick}>
-                  <HoverBorderGradient
-                    containerClassName="rounded-xl border border-foreground/10 shadow-[0_0_20px_rgba(0,0,0,0.05)] dark:shadow-[0_0_20px_rgba(255,255,255,0.05)]"
-                    className="text-xs font-bold font-mono px-6 py-3.5 bg-foreground text-background"
-                  >
-                    Launch Dashboard
-                  </HoverBorderGradient>
-                </Link>
-
-                <Link href="/customer" onClick={handleLaunchCustomerClick}>
-                  <InteractiveHoverButton
-                    className="bg-boxdark border-strokedark text-foreground font-mono text-xs hover:text-background py-3.5 px-6"
-                  >
-                    Customer App
-                  </InteractiveHoverButton>
-                </Link>
+                  <Link href="/customer" onClick={handleLaunchCustomerClick}>
+                    <InteractiveHoverButton
+                      className="bg-boxdark border-strokedark text-foreground font-mono text-xs sm:text-sm md:text-base hover:text-background py-3.5 sm:py-4 px-7 sm:px-8"
+                    >
+                      Customer App
+                    </InteractiveHoverButton>
+                  </Link>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Right Column - Video Player / Mockup Container */}
-          <div className="lg:col-span-5 w-full flex justify-center items-center animate-fade-in relative">
-            <div className="absolute inset-0 -z-10 flex items-center justify-center pointer-events-none scale-125">
-              <Ripple mainCircleSize={180} numCircles={5} mainCircleOpacity={0.4} />
+            {/* Right Column - Video Player / Mockup Container scaled ~35% larger */}
+            <div className="lg:col-span-6 xl:col-span-6 2xl:col-span-6 w-full flex justify-center lg:justify-end items-center animate-fade-in relative">
+              <div className="absolute inset-0 -z-10 flex items-center justify-center pointer-events-none scale-150 xl:scale-175 2xl:scale-200">
+                <Ripple mainCircleSize={220} numCircles={6} mainCircleOpacity={0.35} />
+              </div>
+              <Skiper67 className="w-full max-w-xl md:max-w-2xl lg:max-w-3xl xl:max-w-4xl 2xl:max-w-5xl relative z-10 shadow-[0_25px_60px_rgba(0,0,0,0.6)]" />
             </div>
-            <Skiper67 className="w-full max-w-lg relative z-10" />
           </div>
-        </div>
         </section>
       </HoleBackground>
 
