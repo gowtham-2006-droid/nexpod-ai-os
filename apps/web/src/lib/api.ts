@@ -249,6 +249,28 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+export interface ExecutiveSummaryData {
+  total_orders: number;
+  gross_revenue_inr: number;
+  gross_revenue_usd: number;
+  fleet_health_score: number;
+  active_alerts_count: number;
+  operational_status: string;
+  summary_headline: string;
+}
+
+export interface DailyReportData {
+  report_id: string;
+  generated_at: string;
+  date_label: string;
+  executive_summary: ExecutiveSummaryData;
+  category_sales: Array<{ category: string; orders: number; revenue_inr: number; share_pct: number }>;
+  payment_breakdown: Array<{ method: string; transactions: number; pct: number }>;
+  pod_metrics: Array<{ pod_id: string; name: string; status: string; health_score: number; temperature_c: number; power_draw_w: number; latency_ms: number; active_alerts: number }>;
+  ai_recommendations: Array<{ domain: string; title: string; insight: string; action: string; impact: string; priority: string }>;
+  anomaly_status: { model_status: string; risk_score: number; recent_incidents_recorded: number };
+}
+
 export const api = {
   getDashboard: () => request<DashboardData>('/api/dashboard'),
   getOrders: () => request<OrdersResponse>('/api/orders'),
@@ -256,6 +278,7 @@ export const api = {
   getMachine: () => request<PodMachineHealth[]>('/api/machine'),
   getTelemetry: () => request<TelemetryData[]>('/api/telemetry'),
   getIntelligence: () => request<IntelligenceInsight>('/api/intelligence'),
+  getDailyReport: () => request<DailyReportData>('/api/reports/daily'),
   
   createOrder: (podId: string, sku: string, quantity: number) =>
     request<OrderItem>('/api/orders', {

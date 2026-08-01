@@ -28,6 +28,7 @@ import {
   ArrowDownRight,
   RefreshCw,
   History,
+  FileText,
 } from 'lucide-react';
 
 import { api, RuntimeInfo, HealthStatus, WsTelemetrySnapshot, AIReasoningData } from '../../lib/api';
@@ -43,6 +44,7 @@ import { useLiveClock } from '../../hooks/useLiveClock';
 import { usePolling } from '../../hooks/usePolling';
 import { useWebSocket, WsStatus } from '../../hooks/useWebSocket';
 import { IncidentReplayDrawer } from '../../components/IncidentReplayDrawer';
+import { DailyReportModal } from '../../components/DailyReportModal';
 import { logger } from '../../lib/logger';
 import { AlertItem, InventoryItem } from '../../types';
 
@@ -85,6 +87,7 @@ export default function Home() {
   const [analysisTimer, setAnalysisTimer] = useState(4);
   const [wsStatus, setWsStatus] = useState<WsStatus>('connecting');
   const [isReplayOpen, setIsReplayOpen] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [reasoningData, setReasoningData] = useState<AIReasoningData | null>(null);
   const [chartData, setChartData] = useState<{
     revenue: {
@@ -640,6 +643,15 @@ export default function Home() {
             </div>
             
             <div className="flex flex-wrap gap-3 text-xs font-mono text-bodydark2 items-center">
+              {/* GENERATE DAILY REPORT BUTTON */}
+              <button
+                onClick={() => setIsReportModalOpen(true)}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-black font-extrabold transition-all shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:scale-[1.02]"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                Generate Daily Report
+              </button>
+
               {/* INCIDENT REPLAY BUTTON */}
               <button
                 onClick={() => setIsReplayOpen(true)}
@@ -1153,6 +1165,12 @@ export default function Home() {
         isOpen={isReplayOpen}
         onClose={() => setIsReplayOpen(false)}
         onReplaySnapshot={handleReplaySnapshot}
+      />
+
+      {/* DAILY EXECUTIVE REPORT MODAL */}
+      <DailyReportModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
       />
     </div>
   );

@@ -97,6 +97,17 @@ def incidents():
     return jsonable_encoder(incident_service.get_incidents())
 
 
+@router.get("/reports/daily", summary="Generate Executive Daily Operational Report")
+def daily_report():
+    """
+    Generates a structured daily operational report with KPI summary, revenue breakdown,
+    pod health metrics, anomaly status, and AI domain optimization directives.
+    """
+    from ..services.report_service import report_service
+    return jsonable_encoder(report_service.generate_daily_report())
+
+
+
 
 @router.get("/settings")
 def get_settings():
