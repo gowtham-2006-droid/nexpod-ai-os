@@ -432,7 +432,28 @@ export default function InventoryPage() {
             transition={{ duration: 0.5, delay: 0.25 }}
             className="w-full"
           >
-            <ConsumptionChart data={inventoryPageData.charts} />
+            <ConsumptionChart data={{
+              daily: [
+                { label: '06:00', Milk: 0.2, CoffeeBeans: 0.05, TeaPowder: 0.02, Sugar: 0.05, Water: 0.5 },
+                { label: '08:00', Milk: 0.8, CoffeeBeans: 0.20, TeaPowder: 0.08, Sugar: 0.22, Water: 2.1 },
+                { label: '10:00', Milk: 1.5, CoffeeBeans: 0.38, TeaPowder: 0.12, Sugar: 0.40, Water: 4.0 },
+                { label: '12:00', Milk: 2.1, CoffeeBeans: 0.52, TeaPowder: 0.18, Sugar: 0.60, Water: 6.2 },
+                { label: '14:00', Milk: 2.8, CoffeeBeans: 0.70, TeaPowder: 0.25, Sugar: 0.82, Water: 8.5 },
+                { label: '16:00', Milk: 3.4, CoffeeBeans: 0.88, TeaPowder: 0.32, Sugar: 1.05, Water: 11.2 },
+                { label: '18:00', Milk: 4.8, CoffeeBeans: 1.25, TeaPowder: 0.45, Sugar: 1.45, Water: 15.8 },
+                { label: '20:00', Milk: 6.5, CoffeeBeans: 1.70, TeaPowder: 0.58, Sugar: 1.95, Water: 21.0 },
+                { label: '22:00', Milk: 7.2, CoffeeBeans: 1.90, TeaPowder: 0.65, Sugar: 2.15, Water: 23.4 },
+              ],
+              weekly: [
+                { label: 'Mon', Milk: 6.2, CoffeeBeans: 1.6, TeaPowder: 0.5, Sugar: 1.8, Water: 18.5 },
+                { label: 'Tue', Milk: 6.8, CoffeeBeans: 1.8, TeaPowder: 0.6, Sugar: 2.0, Water: 20.2 },
+                { label: 'Wed', Milk: 6.5, CoffeeBeans: 1.7, TeaPowder: 0.5, Sugar: 1.9, Water: 19.8 },
+                { label: 'Thu', Milk: 7.1, CoffeeBeans: 1.9, TeaPowder: 0.7, Sugar: 2.2, Water: 22.0 },
+                { label: 'Fri', Milk: 8.2, CoffeeBeans: 2.1, TeaPowder: 0.8, Sugar: 2.5, Water: 25.4 },
+                { label: 'Sat', Milk: 9.5, CoffeeBeans: 2.5, TeaPowder: 0.9, Sugar: 2.9, Water: 29.1 },
+                { label: 'Sun', Milk: 8.8, CoffeeBeans: 2.3, TeaPowder: 0.8, Sugar: 2.7, Water: 27.5 },
+              ],
+            }} />
           </motion.div>
         </main>
 

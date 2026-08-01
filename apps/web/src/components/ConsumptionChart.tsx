@@ -10,7 +10,15 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from 'recharts';
-import { ConsumptionDataPoint } from '../data/inventoryData';
+
+export interface ConsumptionDataPoint {
+  label: string;
+  Milk: number;
+  CoffeeBeans: number;
+  TeaPowder: number;
+  Sugar: number;
+  Water: number;
+}
 
 interface ConsumptionChartProps {
   data: {
