@@ -594,9 +594,17 @@ export default function Home() {
                 <h2 className="text-2xl font-extrabold text-white tracking-tight">
                   NexPod Atrium
                 </h2>
-                <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-meta-3/15 text-meta-3 border border-meta-3/20">
-                  <span className="w-1.5 h-1.5 rounded-full bg-meta-3 animate-pulse" />
-                  ONLINE
+                <span className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-mono font-bold border transition-all ${
+                  wsStatus === 'connected'
+                    ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+                    : wsStatus === 'connecting'
+                    ? 'bg-amber-500/15 text-amber-400 border-amber-500/30'
+                    : 'bg-red-500/15 text-red-400 border-red-500/30'
+                }`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${
+                    wsStatus === 'connected' ? 'bg-emerald-400 animate-pulse' : wsStatus === 'connecting' ? 'bg-amber-400 animate-ping' : 'bg-red-400'
+                  }`} />
+                  {wsStatus === 'connected' ? 'ONLINE (LIVE WS)' : wsStatus === 'connecting' ? 'CONNECTING...' : 'OFFLINE'}
                 </span>
               </div>
               <p className="text-xs text-bodydark2 mt-1 font-medium">
