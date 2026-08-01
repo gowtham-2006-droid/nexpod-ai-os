@@ -321,6 +321,7 @@ export default function LandingPage() {
                     >
                       Customer App
                     </InteractiveHoverButton>
+                  </Link>
                 </div>
             </div>
 
