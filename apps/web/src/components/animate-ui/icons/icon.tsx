@@ -430,61 +430,6 @@ function AnimateIcon({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [localAnimate, controls]);
 
-  const childProps = (
-    React.isValidElement(children) ? (children as React.ReactElement).props : {}
-  ) as AnyProps;
-
-  const handleMouseEnter = composeEventHandlers<React.MouseEvent<HTMLElement>>(
-    childProps.onMouseEnter,
-    () => {
-      if (animateOnHover) startAnimation(animateOnHover);
-    },
-  );
-
-  const handleMouseLeave = composeEventHandlers<React.MouseEvent<HTMLElement>>(
-    childProps.onMouseLeave,
-    () => {
-      if (animateOnHover || animateOnTap) stopAnimation();
-    },
-  );
-
-  const handlePointerDown = composeEventHandlers<
-    React.PointerEvent<HTMLElement>
-  >(childProps.onPointerDown, () => {
-    if (animateOnTap) startAnimation(animateOnTap);
-  });
-
-  const handlePointerUp = composeEventHandlers<React.PointerEvent<HTMLElement>>(
-    childProps.onPointerUp,
-    () => {
-      if (animateOnTap) stopAnimation();
-    },
-  );
-
-  const content = asChild ? (
-    <Slot
-      ref={inViewRef}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onPointerDown={handlePointerDown}
-      onPointerUp={handlePointerUp}
-      {...props}
-    >
-      {children}
-    </Slot>
-  ) : (
-    <motion.span
-      ref={inViewRef}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onPointerDown={handlePointerDown}
-      onPointerUp={handlePointerUp}
-      {...props}
-    >
-      {children}
-    </motion.span>
-  );
-
   return (
     <AnimateIconContext.Provider
       value={{
