@@ -20,6 +20,7 @@ import { HealthRing } from '../../components/HealthRing';
 import { Sidebar } from '../../components/Sidebar';
 import { Header } from '../../components/Header';
 import { AIReasoningPanel } from '../../components/AIReasoningPanel';
+import { HeroSkeleton, CardSkeleton } from '../../components/ui/skeleton';
 import { useLiveClock } from '../../hooks/useLiveClock';
 import { usePolling } from '../../hooks/usePolling';
 import { logger } from '../../lib/logger';
@@ -270,73 +271,74 @@ export default function IntelligencePage() {
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 xl:gap-7.5">
-              {(intelData?.domains || []).map((domain: any, idx: number) => {
-                const IconComponent = domainIconMap[domain.icon] || TrendingUp;
-                const borderClass = domainBorderMap[domain.id] || 'border-strokedark';
-                const colorClass = domainColorMap[domain.id] || 'text-primary';
+              {intelData === null
+                ? Array.from({ length: 4 }).map((_, idx) => <CardSkeleton key={idx} />)
+                : (intelData.domains || []).map((domain: any, idx: number) => {
+                    const IconComponent = domainIconMap[domain.icon] || TrendingUp;
+                    const borderClass = domainBorderMap[domain.id] || 'border-strokedark';
+                    const colorClass = domainColorMap[domain.id] || 'text-primary';
 
-                return (
-                  <motion.div
-                    key={domain.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.45, delay: idx * 0.08 }}
-                    className={`rounded-2xl border ${borderClass} bg-boxdark p-6 shadow-default flex flex-col justify-between hover:shadow-lg transition-all duration-300 relative group`}
-                  >
-                    <div className="flex justify-between items-start gap-4 mb-6">
-                      <div className="flex items-center gap-3">
-                        <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-meta-4 ${colorClass}`}>
-                          <IconComponent className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <h4 className="text-sm font-bold text-white">{domain.name}</h4>
-                          <span className="text-[10px] text-bodydark2 font-mono">
-                            Domain Agent #{100 + idx}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="flex flex-col items-end">
-                        <span className="text-[9px] font-mono text-bodydark2 uppercase">Confidence</span>
-                        <span className="text-sm font-extrabold text-white font-mono">{domain.confidence}%</span>
-                      </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      {/* Insight Card Content */}
-                      <div className="p-4 rounded-xl bg-black/40 border border-strokedark/60">
-                        <span className="text-[9px] font-mono font-bold text-bodydark2 uppercase tracking-wider block mb-1">
-                          Live Observation
-                        </span>
-                        <p className="text-xs text-white leading-normal font-mono">
-                          {domain.insight}
-                        </p>
-                      </div>
-
-                      <div className="p-4 rounded-xl bg-primary/[0.02] border border-primary/20">
-                        <span className="text-[9px] font-mono font-bold text-primary uppercase tracking-wider block mb-1">
-                          Action Recommendation
-                        </span>
-                        <p className="text-xs text-white leading-normal font-mono">
-                          {domain.recommendation}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="mt-6 pt-4 border-t border-strokedark/50 flex justify-between items-center text-[10px] font-mono">
-                      <span className={`font-bold ${domain.priority === 'HIGH' ? 'text-destructive' : domain.priority === 'MEDIUM' ? 'text-chart-4' : 'text-chart-2'}`}>
-                        PRIORITY: {domain.priority}
-                      </span>
-                      <button
-                        onClick={triggerAction}
-                        className="text-bodydark2 hover:text-white transition-colors cursor-pointer"
+                    return (
+                      <motion.div
+                        key={domain.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.45, delay: idx * 0.08 }}
+                        className={`rounded-2xl border ${borderClass} bg-boxdark p-6 shadow-default flex flex-col justify-between hover:shadow-lg transition-all duration-300 relative group`}
                       >
-                        INTERROGATE MODEL
-                      </button>
-                    </div>
-                  </motion.div>
-                );
-              })}
+                        <div className="flex justify-between items-start gap-4 mb-6">
+                          <div className="flex items-center gap-3">
+                            <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-meta-4 ${colorClass}`}>
+                              <IconComponent className="h-5 w-5" />
+                            </div>
+                            <div>
+                              <h4 className="text-sm font-bold text-white">{domain.name}</h4>
+                              <span className="text-[10px] text-bodydark2 font-mono">
+                                Domain Agent #{100 + idx}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-col items-end">
+                            <span className="text-[9px] font-mono text-bodydark2 uppercase">Confidence</span>
+                            <span className="text-sm font-extrabold text-white font-mono">{domain.confidence}%</span>
+                          </div>
+                        </div>
+
+                        <div className="space-y-4">
+                          <div className="p-4 rounded-xl bg-black/40 border border-strokedark/60">
+                            <span className="text-[9px] font-mono font-bold text-bodydark2 uppercase tracking-wider block mb-1">
+                              Live Observation
+                            </span>
+                            <p className="text-xs text-white leading-normal font-mono">
+                              {domain.insight}
+                            </p>
+                          </div>
+
+                          <div className="p-4 rounded-xl bg-primary/[0.02] border border-primary/20">
+                            <span className="text-[9px] font-mono font-bold text-primary uppercase tracking-wider block mb-1">
+                              Action Recommendation
+                            </span>
+                            <p className="text-xs text-white leading-normal font-mono">
+                              {domain.recommendation}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="mt-6 pt-4 border-t border-strokedark/50 flex justify-between items-center text-[10px] font-mono">
+                          <span className={`font-bold ${domain.priority === 'HIGH' ? 'text-destructive' : domain.priority === 'MEDIUM' ? 'text-chart-4' : 'text-chart-2'}`}>
+                            PRIORITY: {domain.priority}
+                          </span>
+                          <button
+                            onClick={triggerAction}
+                            className="text-bodydark2 hover:text-white transition-colors cursor-pointer"
+                          >
+                            INTERROGATE MODEL
+                          </button>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
             </div>
           </div>
         </main>
