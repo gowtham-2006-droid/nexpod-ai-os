@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Settings as SettingsIcon } from '@/components/animate-ui/icons/settings';
 import {
+  Settings as SettingsIcon,
   Sliders,
   Bell,
   Brain,

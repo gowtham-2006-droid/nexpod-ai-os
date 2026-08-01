@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { RotateCcw } from '@/components/animate-ui/icons/rotate-ccw';
 import {
+  RotateCcw,
   X,
   Play,
   Pause,
