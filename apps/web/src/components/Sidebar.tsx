@@ -13,6 +13,7 @@ import {
   Brain,
   Settings,
   ArrowLeft,
+  FileText,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -56,6 +57,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen })
           label: 'NexPod Intelligence',
           icon: Brain,
           path: '/intelligence',
+        },
+        {
+          label: 'Reports',
+          icon: FileText,
+          path: '/reports',
         },
       ],
     },
