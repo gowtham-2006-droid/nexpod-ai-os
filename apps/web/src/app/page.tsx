@@ -61,6 +61,7 @@ import { DashboardFooter } from '../components/DashboardFooter';
 import { DeveloperDocs } from '../components/DeveloperDocs';
 import AIChatSidebar from '../components/ui/ai-chat-sidebar';
 import StaggeredMenu from '../components/ui/StaggeredMenu';
+import { HoleBackground } from '../components/ui/hole-background';
 
 export default function LandingPage() {
   const router = useRouter();
@@ -239,11 +240,16 @@ export default function LandingPage() {
       />
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex flex-col justify-center pt-24 pb-16 overflow-hidden bg-background">
-        {/* Subtle Meteors */}
-        <Meteors number={12} minDuration={4} maxDuration={8} className="opacity-40" />
-
-
+      <HoleBackground
+        strokeColor="#30363D"
+        numberOfLines={65}
+        numberOfDiscs={60}
+        particleRGBColor={[16, 185, 129]}
+        className="min-h-screen"
+      >
+        <section className="relative min-h-screen flex flex-col justify-center pt-24 sm:pt-28 md:pt-32 pb-16 overflow-hidden">
+          {/* Subtle Meteors */}
+          <Meteors number={12} minDuration={4} maxDuration={8} className="opacity-40" />
 
         <div className="max-w-7xl mx-auto px-6 md:px-12 w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
           {/* Left Column - Text Details under the Lamp spotlight */}
@@ -336,7 +342,8 @@ export default function LandingPage() {
             <Skiper67 className="w-full max-w-lg relative z-10" />
           </div>
         </div>
-      </section>
+        </section>
+      </HoleBackground>
 
       {/* Text Reveal Block */}
       <section className="relative bg-background z-10 border-t border-strokedark/30">
