@@ -34,6 +34,8 @@ import { api } from '../lib/api';
 
 // Installed Shadcn/MagicUI/VengenceUI/CultUI components
 import { ScrollProgress } from '../components/ui/scroll-progress';
+import { NotchNavbar } from '../components/ui/notch-navbar';
+import { AnimatedThemeToggler } from '../components/ui/animated-theme-toggler';
 import { Meteors } from '../components/ui/meteors';
 import { Ripple } from '../components/ui/ripple';
 import { TextAnimate } from '../components/ui/text-animate';
@@ -60,7 +62,6 @@ import { SdkSandbox } from '../components/SdkSandbox';
 import { DashboardFooter } from '../components/DashboardFooter';
 import { DeveloperDocs } from '../components/DeveloperDocs';
 import AIChatSidebar from '../components/ui/ai-chat-sidebar';
-import StaggeredMenu from '../components/ui/StaggeredMenu';
 import { HoleBackground } from '../components/ui/hole-background';
 
 export default function LandingPage() {
@@ -212,31 +213,19 @@ export default function LandingPage() {
       {/* Scroll Progress Indicator */}
       <ScrollProgress className="bg-gradient-to-r from-primary via-chart-4 to-primary h-1" />
 
-      {/* React Bits Staggered Menu */}
-      <StaggeredMenu
-        position="right"
-        items={[
-          { label: 'Dashboard', ariaLabel: 'Go to Owner Dashboard', link: '/dashboard' },
-          { label: 'Intelligence', ariaLabel: 'Go to AI Intelligence', link: '/intelligence' },
-          { label: 'Telemetry', ariaLabel: 'Go to Pod Telemetry', link: '/telemetry' },
-          { label: 'Reports', ariaLabel: 'Go to Daily Reports', link: '/reports' },
-          { label: 'Customer Kiosk', ariaLabel: 'Go to Customer Kiosk', link: '/customer' },
-          { label: 'Settings', ariaLabel: 'Go to Settings', link: '/settings' },
-        ]}
-        socialItems={[
-          { label: 'GitHub', link: 'https://github.com/gowtham-2006-droid/nexpod-ai-os' },
-          { label: 'Owner Portal', link: '/dashboard' },
-          { label: 'Kiosk App', link: '/customer' },
-        ]}
-        displaySocials={true}
-        displayItemNumbering={true}
-        menuButtonColor="#ffffff"
-        openMenuButtonColor="#ffffff"
-        changeMenuColorOnOpen={true}
-        colors={['#10B981', '#059669']}
-        logoUrl="https://res.cloudinary.com/dkt9vrlf0/image/upload/v1784138600/ChatGPT_Image_Jul_15_2026_11_32_55_PM_k0hqoz.png"
-        accentColor="#10B981"
-        isFixed={true}
+      {/* Notch Navbar */}
+      <NotchNavbar
+        rightElement={
+          <>
+            <AnimatedThemeToggler />
+            <Link
+              href="/dashboard"
+              className="px-4 py-2 text-xs font-bold font-mono bg-black dark:bg-white text-white dark:text-black hover:bg-black/90 dark:hover:bg-white/90 rounded-xl transition-all shadow-[0_0_15px_rgba(255,255,255,0.05)]"
+            >
+              Dashboard
+            </Link>
+          </>
+        }
       />
 
       {/* Hero Section */}
