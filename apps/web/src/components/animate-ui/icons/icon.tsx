@@ -74,7 +74,8 @@ type DefaultIconProps<T = string> = {
 type AnimateIconProps<T = string> = WithAsChild<
   HTMLMotionProps<'span'> &
     DefaultIconProps<T> & {
-      children: React.ReactNode;
+      children?: React.ReactNode;
+      render?: React.ReactNode;
       asChild?: boolean;
     }
 >;
@@ -139,9 +140,12 @@ function AnimateIcon({
   persistOnAnimateEnd = false,
   delay = 0,
   children,
+  render,
   ...props
 }: AnimateIconProps) {
   const controls = useAnimation();
+
+  const effectiveChildren = children ?? render;
 
   const [localAnimate, setLocalAnimate] = React.useState<boolean>(() => {
     if (animate === undefined || animate === false) return false;
@@ -158,6 +162,61 @@ function AnimateIcon({
   const animateEndPromiseRef = React.useRef<Promise<void> | null>(null);
   const resolveAnimateEndRef = React.useRef<(() => void) | null>(null);
   const activeRef = React.useRef<boolean>(localAnimate);
+
+  const childProps = (
+    React.isValidElement(effectiveChildren) ? (effectiveChildren as React.ReactElement).props : {}
+  ) as AnyProps;
+
+  const handleMouseEnter = composeEventHandlers<React.MouseEvent<HTMLElement>>(
+    childProps.onMouseEnter,
+    () => {
+      if (animateOnHover) startAnimation(animateOnHover);
+    },
+  );
+
+  const handleMouseLeave = composeEventHandlers<React.MouseEvent<HTMLElement>>(
+    childProps.onMouseLeave,
+    () => {
+      if (animateOnHover || animateOnTap) stopAnimation();
+    },
+  );
+
+  const handlePointerDown = composeEventHandlers<
+    React.PointerEvent<HTMLElement>
+  >(childProps.onPointerDown, () => {
+    if (animateOnTap) startAnimation(animateOnTap);
+  });
+
+  const handlePointerUp = composeEventHandlers<React.PointerEvent<HTMLElement>>(
+    childProps.onPointerUp,
+    () => {
+      if (animateOnTap) stopAnimation();
+    },
+  );
+
+  const content = asChild ? (
+    <Slot
+      ref={inViewRef}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      {...props}
+    >
+      {effectiveChildren}
+    </Slot>
+  ) : (
+    <motion.span
+      ref={inViewRef}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      {...props}
+    >
+      {effectiveChildren}
+    </motion.span>
+  );
 
   const runGenRef = React.useRef(0);
   const cancelledRef = React.useRef(false);
