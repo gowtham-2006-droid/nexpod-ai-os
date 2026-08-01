@@ -684,7 +684,7 @@ export default function Home() {
 
               {/* EMBEDDED AI REASONING & EXPLAINABILITY (XAI) PANEL */}
               <div className="mt-6 border-t border-strokedark pt-6">
-                <AIReasoningPanel reasoningData={reasoningData} className="bg-transparent border-0 p-0 shadow-none" />
+                <AIReasoningPanel reasoningData={reasoningData} className="bg-transparent border-0 p-0 shadow-none" isCollapsible={true} defaultExpanded={false} />
               </div>
             </motion.div>
           )}
