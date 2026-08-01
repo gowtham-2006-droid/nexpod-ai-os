@@ -248,6 +248,26 @@ export default function LandingPage() {
         className="w-full min-h-screen flex flex-col justify-center border-b border-[#21262D]"
       >
         <section className="relative min-h-screen w-full flex items-center justify-center pt-20 pb-12 lg:py-16 overflow-hidden">
+          {/* Top-Left White Lamp Spotlight */}
+          <div className="absolute top-0 left-0 pointer-events-none z-10 overflow-hidden w-[700px] h-[700px]">
+            {/* Ambient White Glow */}
+            <div
+              className="absolute -top-24 -left-24 w-[500px] h-[500px] rounded-full blur-[100px]"
+              style={{
+                background: "radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.06) 45%, transparent 75%)"
+              }}
+            />
+            {/* Luminous Conic Lamp Light Beam */}
+            <div
+              className="absolute top-0 left-0 w-[450px] h-[550px] transform -rotate-12 opacity-80"
+              style={{
+                backgroundImage: "conic-gradient(from 140deg at 0% 0%, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.04) 35%, transparent 70%)"
+              }}
+            />
+            {/* Top-Left Lamp Bar Highlight */}
+            <div className="absolute top-3 left-8 w-24 h-1 bg-white/90 rounded-full blur-[1px] shadow-[0_0_25px_rgba(255,255,255,0.95)]" />
+          </div>
+
           {/* Subtle Meteors */}
           <Meteors number={14} minDuration={4} maxDuration={8} className="opacity-40" />
 
