@@ -88,6 +88,16 @@ export interface AIReasoningData {
   recommendations: string[];
 }
 
+export interface DomainDirective {
+  id: string;
+  name: string;
+  icon: string;
+  confidence: number;
+  priority: string;
+  insight: string;
+  recommendation: string;
+}
+
 export interface IntelligenceInsight {
   priority: string;
   risk: string;
@@ -103,6 +113,7 @@ export interface IntelligenceInsight {
   generatedAt?: string;
   cached?: boolean;
   reasoning?: AIReasoningData;
+  domainDirectives?: DomainDirective[];
   context?: {
     active_alerts: Array<{ id: string; severity: string; code: string; message: string; timestamp: string }>;
     low_stock: Array<{ sku: string; name: string; quantity: number; capacity: number }>;

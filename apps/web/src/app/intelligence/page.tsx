@@ -83,11 +83,11 @@ export default function IntelligencePage() {
         setReasoningData(intel.reasoning);
       }
 
-      // Map live domain outputs from Gemini/rule-based engine
-      const mappedDomains = [
+      // Prefer backend multi-agent domain directives if available
+      const mappedDomains = intel.domainDirectives || [
         {
           id: 'demand',
-          name: 'Demand Intelligence',
+          name: 'Demand Intelligence Agent',
           icon: 'trending-up',
           confidence: intel.confidence - 2,
           insight: intel.demandForecast || '',
@@ -96,7 +96,7 @@ export default function IntelligencePage() {
         },
         {
           id: 'inventory',
-          name: 'Inventory Intelligence',
+          name: 'Inventory Operations Agent',
           icon: 'layers',
           confidence: intel.confidence,
           insight: intel.inventoryInsight || '',
@@ -105,7 +105,7 @@ export default function IntelligencePage() {
         },
         {
           id: 'machine',
-          name: 'Machine Intelligence',
+          name: 'Machine Diagnostics Agent',
           icon: 'activity',
           confidence: intel.confidence + 1,
           insight: intel.maintenanceInsight || '',
@@ -114,7 +114,7 @@ export default function IntelligencePage() {
         },
         {
           id: 'business',
-          name: 'Business Intelligence',
+          name: 'Business Margins Agent',
           icon: 'bar-chart',
           confidence: intel.confidence - 1,
           insight: intel.businessInsight || '',
