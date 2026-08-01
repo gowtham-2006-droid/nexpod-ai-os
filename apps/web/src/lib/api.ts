@@ -75,6 +75,19 @@ export interface TelemetryData {
   network_latency_ms: number;
 }
 
+export interface ReasoningSignal {
+  status: 'healthy' | 'warning' | 'critical';
+  label: string;
+}
+
+export interface AIReasoningData {
+  healthScore: number;
+  confidence: number;
+  reasoningSignals: ReasoningSignal[];
+  predictedNextEvent: string;
+  recommendations: string[];
+}
+
 export interface IntelligenceInsight {
   priority: string;
   risk: string;
@@ -89,6 +102,7 @@ export interface IntelligenceInsight {
   demandForecast?: string;
   generatedAt?: string;
   cached?: boolean;
+  reasoning?: AIReasoningData;
   context?: {
     active_alerts: Array<{ id: string; severity: string; code: string; message: string; timestamp: string }>;
     low_stock: Array<{ sku: string; name: string; quantity: number; capacity: number }>;

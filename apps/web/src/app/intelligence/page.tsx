@@ -15,10 +15,11 @@ import {
   Zap,
 } from 'lucide-react';
 
-import { api } from '../../lib/api';
+import { api, AIReasoningData } from '../../lib/api';
 import { HealthRing } from '../../components/HealthRing';
 import { Sidebar } from '../../components/Sidebar';
 import { Header } from '../../components/Header';
+import { AIReasoningPanel } from '../../components/AIReasoningPanel';
 import { useLiveClock } from '../../hooks/useLiveClock';
 import { usePolling } from '../../hooks/usePolling';
 import { logger } from '../../lib/logger';
@@ -49,6 +50,7 @@ export default function IntelligencePage() {
   const [notifications, setNotifications] = useState(1);
   const liveTime = useLiveClock();
   const [overallConfidence, setOverallConfidence] = useState(94);
+  const [reasoningData, setReasoningData] = useState<AIReasoningData | null>(null);
   const [intelData, setIntelData] = useState<{
     overallConfidence: number;
     modelStatus: string;
@@ -76,6 +78,9 @@ export default function IntelligencePage() {
 
       setNotifications(dashboard.alerts);
       setOverallConfidence(intel.confidence);
+      if (intel.reasoning) {
+        setReasoningData(intel.reasoning);
+      }
 
       // Map live domain outputs from Gemini/rule-based engine
       const mappedDomains = [
@@ -250,6 +255,11 @@ export default function IntelligencePage() {
                 <span className="text-chart-2">CONTINUOUS TELEMETRY MONITORING ACTIVE</span>
               </div>
             </motion.div>
+          </div>
+
+          {/* AI REASONING / EXPLAINABILITY PANEL */}
+          <div className="mb-10">
+            <AIReasoningPanel reasoningData={reasoningData} />
           </div>
 
           {/* DOMAINS: AI Cards Grid */}

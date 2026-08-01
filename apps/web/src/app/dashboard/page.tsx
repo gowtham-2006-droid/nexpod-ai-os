@@ -29,13 +29,14 @@ import {
   History,
 } from 'lucide-react';
 
-import { api, RuntimeInfo, HealthStatus, WsTelemetrySnapshot } from '../../lib/api';
+import { api, RuntimeInfo, HealthStatus, WsTelemetrySnapshot, AIReasoningData } from '../../lib/api';
 import { CircularProgress } from '../../components/CircularProgress';
 import { RevenueChart } from '../../components/RevenueChart';
 import { HourlyOrdersChart } from '../../components/HourlyOrdersChart';
 import { ProductSalesChart } from '../../components/ProductSalesChart';
 import { Sidebar } from '../../components/Sidebar';
 import { Header } from '../../components/Header';
+import { AIReasoningPanel } from '../../components/AIReasoningPanel';
 import { useLiveClock } from '../../hooks/useLiveClock';
 import { usePolling } from '../../hooks/usePolling';
 import { useWebSocket, WsStatus } from '../../hooks/useWebSocket';
@@ -82,6 +83,7 @@ export default function Home() {
   const [analysisTimer, setAnalysisTimer] = useState(4);
   const [wsStatus, setWsStatus] = useState<WsStatus>('connecting');
   const [isReplayOpen, setIsReplayOpen] = useState(false);
+  const [reasoningData, setReasoningData] = useState<AIReasoningData | null>(null);
   const [chartData, setChartData] = useState<{
     revenue: {
       today: Array<{ label: string; revenue: number }>;
@@ -216,6 +218,10 @@ export default function Home() {
         confidence: intel.confidence,
         replenished: !insightMsg.toLowerCase().includes('milk'),
       });
+
+      if (intel.reasoning) {
+        setReasoningData(intel.reasoning);
+      }
 
       setNotifications(dash.alerts);
 
@@ -672,6 +678,9 @@ export default function Home() {
               </div>
             </div>
           </motion.div>
+
+          {/* AI REASONING & EXPLAINABILITY PANEL */}
+          <AIReasoningPanel reasoningData={reasoningData} className="mb-7.5" />
 
           {/* 3. IMPROVED KPI CARDS (6-Column Grid) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 xl:gap-6 mb-7.5">
