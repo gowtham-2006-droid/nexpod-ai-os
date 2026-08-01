@@ -10,7 +10,19 @@ import {
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
-import { Order, OrderStatus } from '../data/ordersData';
+
+export type OrderStatus = 'completed' | 'preparing' | 'pending' | 'cancelled';
+export type PaymentMethod = 'UPI' | 'Card' | 'Cash';
+
+export interface Order {
+  id: string;
+  customer: string;
+  product: string;
+  price: number;
+  status: OrderStatus;
+  time: string;
+  payment: PaymentMethod;
+}
 
 interface OrdersTableProps {
   orders: Order[];
