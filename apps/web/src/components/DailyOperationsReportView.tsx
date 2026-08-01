@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   Sparkles,
@@ -25,17 +25,31 @@ import {
   Copy,
   ChevronDown,
   Check,
+  Brain,
+  Loader2,
 } from 'lucide-react';
+
+import { api } from '../lib/api';
 
 interface DailyOperationsReportViewProps {
   onClose?: () => void;
   isModal?: boolean;
 }
 
+const impactColor = (impact: string) => {
+  const lower = impact.toLowerCase();
+  if (lower.includes('high')) return 'bg-red-500/20 text-red-400 border-red-500/30';
+  if (lower.includes('medium')) return 'bg-amber-500/20 text-amber-400 border-amber-500/30';
+  return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+};
+
 export const DailyOperationsReportView: React.FC<DailyOperationsReportViewProps> = ({
   onClose,
   isModal = false,
 }) => {
+  const [report, setReport] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [copiedReportId, setCopiedReportId] = useState(false);
   const [copiedMd, setCopiedMd] = useState(false);
 
@@ -68,74 +82,95 @@ export const DailyOperationsReportView: React.FC<DailyOperationsReportViewProps>
     );
   };
 
-  const reportData = {
-    reportId: 'RPT-2026-08-01-0630',
-    generatedAt: '01 Aug 2026, 06:30 AM',
-    window: '31 Jul 06:30 AM – 01 Aug 06:30 AM',
-    kpis: {
-      health: { value: '94%', change: '+ 3% vs yesterday', isPositive: true },
-      activePods: { value: '12 / 12', label: '100% Operational' },
-      revenue: { value: '₹65,340', change: '+ 14.2% vs yesterday', isPositive: true },
-      orders: { value: '620', change: '+ 12.7% vs yesterday', isPositive: true },
-      rating: { value: '4.8 / 5', change: '+ 0.2 vs yesterday', isPositive: true },
-      uptime: { value: '99.6%', change: '+ 0.6% vs yesterday', isPositive: true },
-    },
-    summary:
-      'Today the NexPod fleet remained operational with an overall fleet health score of 94%. A total of 620 beverages were served, generating ₹65,340 in revenue. One inventory warning and two maintenance alerts were detected. No critical failures occurred.',
-    insights: [
-      'Milk consumption increased 18% during evening hours.',
-      'Boiler temperature remained stable across all pods.',
-      'Revenue increased 14% compared to yesterday.',
-      'Customer satisfaction remained above 4.8 stars.',
-      'No critical incidents recorded in the last 24 hours.',
-    ],
-    inventory: [
-      { name: 'Milk', pct: 58, consumption: '42 L', remaining: '8.2 hrs', refill: 'Today, 02:45 PM', isWarning: true },
-      { name: 'Coffee Beans', pct: 72, consumption: '18 kg', remaining: '26.4 hrs', refill: 'Tomorrow, 06:30 AM', isWarning: false },
-      { name: 'Sugar', pct: 81, consumption: '12 kg', remaining: '36.1 hrs', refill: 'Tomorrow, 04:30 PM', isWarning: false },
-      { name: 'Water', pct: 82, consumption: '120 L', remaining: '41.8 hrs', refill: 'Tomorrow, 10:15 PM', isWarning: false },
-      { name: 'Cups', pct: 91, consumption: '620 pcs', remaining: '2.8 days', refill: '03 Aug, 08:00 AM', isWarning: false },
-    ],
-    alerts: [
-      { type: 'Inventory Warning', message: 'Milk reservoir below threshold.', time: '02:35 PM', severity: 'warning' },
-      { type: 'Maintenance Alert', message: 'Cleaning cycle recommended.', time: '04:12 PM', severity: 'warning' },
-      { type: 'Maintenance Alert', message: 'Boiler efficiency reduced by 3%.', time: '05:44 PM', severity: 'warning' },
-      { type: 'Resolved Alert', message: 'Water pump fluctuation resolved.', time: '09:15 AM', severity: 'resolved' },
-    ],
-    telemetry: [
-      { metric: 'Boiler Temp (°C)', min: 58, max: 68, avg: 62.4, points: [58, 60, 62, 65, 63, 61, 62.4] },
-      { metric: 'Voltage (V)', min: 218, max: 235, avg: 226.7, points: [220, 225, 230, 224, 228, 226.7] },
-      { metric: 'Current (A)', min: 3.2, max: 6.8, avg: 4.7, points: [3.5, 4.2, 5.8, 4.5, 4.7] },
-      { metric: 'CPU Usage (%)', min: 12, max: 48, avg: 28.6, points: [15, 22, 45, 30, 28.6] },
-      { metric: 'Memory Usage (%)', min: 34, max: 62, avg: 45.3, points: [35, 40, 55, 48, 45.3] },
-      { metric: 'Network Latency (ms)', min: 12, max: 48, avg: 23.7, points: [14, 20, 42, 25, 23.7] },
-    ],
-    actions: [
-      { id: 1, title: 'Refill Milk Reservoir', impact: 'High Impact', impactColor: 'bg-red-500/20 text-red-400 border-red-500/30' },
-      { id: 2, title: 'Schedule Cleaning Cycle', impact: 'Medium Impact', impactColor: 'bg-amber-500/20 text-amber-400 border-amber-500/30' },
-      { id: 3, title: 'Monitor Boiler Temperature', impact: 'Low Impact', impactColor: 'bg-blue-500/20 text-blue-400 border-blue-500/30' },
-      { id: 4, title: 'Check Water Pump Efficiency', impact: 'Low Impact', impactColor: 'bg-blue-500/20 text-blue-400 border-blue-500/30' },
-    ],
-  };
+  // ── fetch real data from API ─────────────────────────────────────────
+  useEffect(() => {
+    const fetchReport = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await api.getDailyReport();
+        setReport(data);
+      } catch (err: any) {
+        console.error('Failed to fetch daily report:', err);
+        setError(err?.message || 'Failed to generate report');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReport();
+  }, []);
+
+  // ── loading state ────────────────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className="w-full bg-[#090C10] text-[#E6EDF3] p-8 rounded-2xl border border-[#21262D] shadow-2xl flex flex-col items-center justify-center min-h-[400px] gap-6">
+        <div className="relative w-20 h-20 flex items-center justify-center">
+          <div className="absolute inset-0 rounded-full border-2 border-emerald-500/20 border-t-emerald-400 animate-spin" />
+          <Brain className="w-8 h-8 text-emerald-400 animate-pulse" />
+        </div>
+        <div className="text-center space-y-2">
+          <h4 className="text-base font-bold text-white">Synthesizing Daily Intelligence</h4>
+          <p className="text-xs font-mono text-emerald-400">
+            Gathering live pod telemetry, running Groq AI analysis...
+          </p>
+        </div>
+        <div className="flex gap-2">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <div
+              key={i}
+              className="h-1.5 rounded-full bg-emerald-400 animate-pulse"
+              style={{ width: `${12 + i * 4}px`, animationDelay: `${i * 150}ms` }}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !report) {
+    return (
+      <div className="w-full bg-[#090C10] text-[#E6EDF3] p-8 rounded-2xl border border-red-500/30 shadow-2xl flex flex-col items-center justify-center min-h-[300px] gap-4">
+        <AlertTriangle className="w-10 h-10 text-red-400" />
+        <p className="text-sm text-red-300 font-mono">{error || 'Report data unavailable.'}</p>
+        <button onClick={() => window.location.reload()} className="px-4 py-2 bg-red-500/20 border border-red-500/30 rounded-lg text-xs font-bold text-red-300 hover:bg-red-500/30 transition-all">
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  // ── destructure live report data ─────────────────────────────────────
+  const kpis = report.kpis || {};
+  const inventory = report.inventory || [];
+  const alerts = report.alerts || [];
+  const telemetry = report.telemetry || [];
+  const podMetrics = report.pod_metrics || [];
+  const biz = report.business_analytics || {};
+  const forecast = report.predictive_forecast || {};
+  const actions = report.recommended_actions || [];
+  const insights = report.key_insights || [];
+  const execSummary = report.executive_summary || '';
 
   const handleCopyMd = () => {
-    const md = `# Daily Operations Report - ${reportData.reportId}
-Generated on ${reportData.generatedAt} | Period: ${reportData.window}
+    const md = `# Daily Operations Report - ${report.report_id}
+Generated on ${report.generated_at} | Period: ${report.window}
+Generated By: ${report.generated_by}
 
 ## Executive Summary
-${reportData.summary}
+${execSummary}
 
 ## Key Metrics
-- Revenue: ${reportData.kpis.revenue.value} (${reportData.kpis.revenue.change})
-- Orders: ${reportData.kpis.orders.value} (${reportData.kpis.orders.change})
-- Fleet Health: ${reportData.kpis.health.value}
-- Uptime: ${reportData.kpis.uptime.value}
+- Revenue: ₹${kpis.revenue_inr?.toLocaleString('en-IN')}
+- Orders: ${kpis.total_orders}
+- Fleet Health: ${kpis.fleet_health}%
+- Uptime: ${kpis.uptime_pct}%
 
 ## Key Insights
-${reportData.insights.map((i) => `- ${i}`).join('\n')}
+${insights.map((i: string) => `- ${i}`).join('\n')}
 
 ## Recommended Actions
-${reportData.actions.map((a) => `${a.id}. ${a.title} (${a.impact})`).join('\n')}
+${actions.map((a: any) => `${a.id}. ${a.title} (${a.impact})`).join('\n')}
 `;
     navigator.clipboard.writeText(md);
     setCopiedMd(true);
@@ -143,18 +178,13 @@ ${reportData.actions.map((a) => `${a.id}. ${a.title} (${a.impact})`).join('\n')}
   };
 
   const handleCopyReportId = () => {
-    navigator.clipboard.writeText(reportData.reportId);
+    navigator.clipboard.writeText(report.report_id);
     setCopiedReportId(true);
     setTimeout(() => setCopiedReportId(false), 2000);
   };
 
-  const handlePrint = () => {
-    window.print();
-  };
-
-  const handleDownloadPdf = () => {
-    window.print();
-  };
+  const handlePrint = () => { window.print(); };
+  const handleDownloadPdf = () => { window.print(); };
 
   return (
     <div className="w-full bg-[#090C10] text-[#E6EDF3] p-4 sm:p-6 lg:p-8 space-y-6 font-sans select-none rounded-2xl border border-[#21262D] shadow-2xl">
@@ -167,50 +197,29 @@ ${reportData.actions.map((a) => `${a.id}. ${a.title} (${a.impact})`).join('\n')}
               <h1 className="text-2xl font-extrabold text-white tracking-tight">Daily Operations Report</h1>
             </div>
             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#1F242C] text-purple-300 border border-purple-500/30">
-              AI Generated
+              {report.generated_by || 'AI Generated'}
             </span>
           </div>
           <p className="text-xs font-mono text-[#8B949E]">
-            Generated on <span className="text-white">{reportData.generatedAt}</span> · Last 24 Hours ({reportData.window})
+            Generated on <span className="text-white">{report.generated_at}</span> · Last 24 Hours ({report.window})
           </p>
         </div>
 
-        {/* TOP RIGHT BUTTON SUITE */}
         <div className="flex items-center gap-2.5 flex-wrap">
-          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#161B22] border border-[#30363D] hover:border-[#8B949E] text-xs font-mono font-semibold text-[#C9D1D9] transition-all">
-            <Eye className="w-3.5 h-3.5 text-blue-400" />
-            Preview
-          </button>
-
-          <button
-            onClick={handleDownloadPdf}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#161B22] border border-[#30363D] hover:border-[#8B949E] text-xs font-mono font-semibold text-[#C9D1D9] transition-all"
-          >
+          <button onClick={handleDownloadPdf} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#161B22] border border-[#30363D] hover:border-[#8B949E] text-xs font-mono font-semibold text-[#C9D1D9] transition-all">
             <Download className="w-3.5 h-3.5 text-emerald-400" />
             Download PDF
           </button>
-
-          <button
-            onClick={handleCopyMd}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#161B22] border border-[#30363D] hover:border-[#8B949E] text-xs font-mono font-semibold text-[#C9D1D9] transition-all"
-          >
+          <button onClick={handleCopyMd} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#161B22] border border-[#30363D] hover:border-[#8B949E] text-xs font-mono font-semibold text-[#C9D1D9] transition-all">
             {copiedMd ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <FileText className="w-3.5 h-3.5 text-purple-400" />}
             {copiedMd ? 'Copied MD' : 'Export MD'}
           </button>
-
-          <button
-            onClick={handlePrint}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#161B22] border border-[#30363D] hover:border-[#8B949E] text-xs font-mono font-semibold text-[#C9D1D9] transition-all"
-          >
+          <button onClick={handlePrint} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#161B22] border border-[#30363D] hover:border-[#8B949E] text-xs font-mono font-semibold text-[#C9D1D9] transition-all">
             <Printer className="w-3.5 h-3.5 text-cyan-400" />
             Print
           </button>
-
           {isModal && onClose && (
-            <button
-              onClick={onClose}
-              className="p-1.5 rounded-lg bg-[#161B22] border border-[#30363D] hover:border-red-500/50 text-[#8B949E] hover:text-white transition-all ml-2"
-            >
+            <button onClick={onClose} className="p-1.5 rounded-lg bg-[#161B22] border border-[#30363D] hover:border-red-500/50 text-[#8B949E] hover:text-white transition-all ml-2">
               <X className="w-4 h-4" />
             </button>
           )}
@@ -219,118 +228,93 @@ ${reportData.actions.map((a) => `${a.id}. ${a.title} (${a.impact})`).join('\n')}
 
       {/* 2. TOP 6 KPI CARDS */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
-        {/* Fleet Health */}
         <div className="p-3.5 rounded-xl bg-[#161B22] border border-[#21262D] space-y-1.5 hover:border-[#30363D] transition-colors">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-mono text-[#8B949E] uppercase tracking-wider">Fleet Health</span>
-            <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-              <ShieldCheck className="w-4 h-4" />
-            </div>
+            <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400"><ShieldCheck className="w-4 h-4" /></div>
           </div>
-          <div className="text-2xl font-extrabold text-white tracking-tight">{reportData.kpis.health.value}</div>
+          <div className="text-2xl font-extrabold text-white tracking-tight">{kpis.fleet_health}%</div>
           <div className="flex items-center justify-between text-[10px] font-mono text-emerald-400">
-            <span>{reportData.kpis.health.change}</span>
-            <MiniSparkline color="#10B981" points={[80, 85, 88, 91, 94]} />
+            <span>{kpis.status}</span>
+            <MiniSparkline color="#10B981" points={[80, 85, 88, kpis.fleet_health || 94]} />
           </div>
         </div>
 
-        {/* Active Pods */}
         <div className="p-3.5 rounded-xl bg-[#161B22] border border-[#21262D] space-y-1.5 hover:border-[#30363D] transition-colors">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-mono text-[#8B949E] uppercase tracking-wider">Active Pods</span>
-            <div className="w-7 h-7 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
-              <Box className="w-4 h-4" />
-            </div>
+            <div className="w-7 h-7 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400"><Box className="w-4 h-4" /></div>
           </div>
-          <div className="text-2xl font-extrabold text-white tracking-tight">{reportData.kpis.activePods.value}</div>
-          <span className="text-[10px] font-mono text-[#8B949E] block">{reportData.kpis.activePods.label}</span>
+          <div className="text-2xl font-extrabold text-white tracking-tight">{kpis.active_pods} / {kpis.total_pods}</div>
+          <span className="text-[10px] font-mono text-[#8B949E] block">{kpis.active_pods === kpis.total_pods ? '100% Operational' : `${Math.round((kpis.active_pods / kpis.total_pods) * 100)}% Operational`}</span>
         </div>
 
-        {/* Revenue */}
         <div className="p-3.5 rounded-xl bg-[#161B22] border border-[#21262D] space-y-1.5 hover:border-[#30363D] transition-colors">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-mono text-[#8B949E] uppercase tracking-wider">Revenue</span>
-            <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-              <IndianRupee className="w-4 h-4" />
-            </div>
+            <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400"><IndianRupee className="w-4 h-4" /></div>
           </div>
-          <div className="text-2xl font-extrabold text-white tracking-tight">{reportData.kpis.revenue.value}</div>
+          <div className="text-2xl font-extrabold text-white tracking-tight">₹{kpis.revenue_inr?.toLocaleString('en-IN')}</div>
           <div className="flex items-center justify-between text-[10px] font-mono text-emerald-400">
-            <span>{reportData.kpis.revenue.change}</span>
-            <MiniSparkline color="#10B981" points={[45000, 52000, 58000, 65340]} />
+            <span>AOV ₹{kpis.aov_inr}</span>
+            <MiniSparkline color="#10B981" points={[kpis.revenue_inr * 0.7, kpis.revenue_inr * 0.85, kpis.revenue_inr]} />
           </div>
         </div>
 
-        {/* Orders Served */}
         <div className="p-3.5 rounded-xl bg-[#161B22] border border-[#21262D] space-y-1.5 hover:border-[#30363D] transition-colors">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-mono text-[#8B949E] uppercase tracking-wider">Orders Served</span>
-            <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-              <Coffee className="w-4 h-4" />
-            </div>
+            <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400"><Coffee className="w-4 h-4" /></div>
           </div>
-          <div className="text-2xl font-extrabold text-white tracking-tight">{reportData.kpis.orders.value}</div>
+          <div className="text-2xl font-extrabold text-white tracking-tight">{kpis.total_orders}</div>
           <div className="flex items-center justify-between text-[10px] font-mono text-emerald-400">
-            <span>{reportData.kpis.orders.change}</span>
-            <MiniSparkline color="#10B981" points={[400, 480, 550, 620]} />
+            <span>{kpis.active_alerts} alerts</span>
+            <MiniSparkline color="#10B981" points={[kpis.total_orders * 0.6, kpis.total_orders * 0.8, kpis.total_orders]} />
           </div>
         </div>
 
-        {/* Customer Rating */}
         <div className="p-3.5 rounded-xl bg-[#161B22] border border-[#21262D] space-y-1.5 hover:border-[#30363D] transition-colors">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-mono text-[#8B949E] uppercase tracking-wider">Customer Rating</span>
-            <div className="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
-              <Star className="w-4 h-4 fill-amber-400/20" />
-            </div>
+            <div className="w-7 h-7 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400"><Star className="w-4 h-4 fill-amber-400/20" /></div>
           </div>
-          <div className="text-2xl font-extrabold text-white tracking-tight">{reportData.kpis.rating.value}</div>
+          <div className="text-2xl font-extrabold text-white tracking-tight">{biz.customer_rating || 4.8} / 5</div>
           <div className="flex items-center justify-between text-[10px] font-mono text-emerald-400">
-            <span>{reportData.kpis.rating.change}</span>
-            <MiniSparkline color="#10B981" points={[4.5, 4.6, 4.7, 4.8]} />
+            <span>Trend: {biz.revenue_trend || 'stable'}</span>
+            <MiniSparkline color="#10B981" points={[4.5, 4.6, 4.7, biz.customer_rating || 4.8]} />
           </div>
         </div>
 
-        {/* Uptime */}
         <div className="p-3.5 rounded-xl bg-[#161B22] border border-[#21262D] space-y-1.5 hover:border-[#30363D] transition-colors">
           <div className="flex items-center justify-between">
             <span className="text-[11px] font-mono text-[#8B949E] uppercase tracking-wider">Uptime</span>
-            <div className="w-7 h-7 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400">
-              <Clock className="w-4 h-4" />
-            </div>
+            <div className="w-7 h-7 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400"><Clock className="w-4 h-4" /></div>
           </div>
-          <div className="text-2xl font-extrabold text-white tracking-tight">{reportData.kpis.uptime.value}</div>
+          <div className="text-2xl font-extrabold text-white tracking-tight">{kpis.uptime_pct}%</div>
           <div className="flex items-center justify-between text-[10px] font-mono text-emerald-400">
-            <span>{reportData.kpis.uptime.change}</span>
-            <MiniSparkline color="#10B981" points={[98.5, 99.0, 99.4, 99.6]} />
+            <span>{kpis.total_pods} pods tracked</span>
+            <MiniSparkline color="#10B981" points={[98.5, 99.0, 99.4, kpis.uptime_pct || 99.6]} />
           </div>
         </div>
       </div>
 
       {/* 3. ROW 2: AI EXECUTIVE SUMMARY & AI KEY INSIGHTS */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Left: AI Executive Summary */}
         <div className="p-5 rounded-xl bg-[#161B22] border border-[#21262D] space-y-3">
           <div className="flex items-center gap-2 text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider">
             <Sparkles className="w-4 h-4" />
             AI Executive Summary
           </div>
-          <p className="text-xs text-[#C9D1D9] leading-relaxed font-normal">
-            {reportData.summary}
-          </p>
+          <p className="text-xs text-[#C9D1D9] leading-relaxed font-normal">{execSummary}</p>
         </div>
 
-        {/* Right: AI Key Insights */}
         <div className="p-5 rounded-xl bg-[#161B22] border border-[#21262D] space-y-3">
           <div className="flex items-center justify-between text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider">
-            <span className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4" />
-              AI Key Insights
-            </span>
+            <span className="flex items-center gap-2"><Sparkles className="w-4 h-4" /> AI Key Insights</span>
             <ChevronRight className="w-4 h-4 text-[#8B949E]" />
           </div>
           <ul className="space-y-2 text-xs text-[#C9D1D9]">
-            {reportData.insights.map((insight, idx) => (
+            {insights.map((insight: string, idx: number) => (
               <li key={idx} className="flex items-start gap-2">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5 shrink-0" />
                 <span>{insight}</span>
@@ -342,48 +326,35 @@ ${reportData.actions.map((a) => `${a.id}. ${a.title} (${a.impact})`).join('\n')}
 
       {/* 4. ROW 3: INVENTORY SUMMARY & ALERTS DIAGNOSTICS */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Left: Inventory Summary */}
         <div className="p-5 rounded-xl bg-[#161B22] border border-[#21262D] space-y-4">
           <div className="flex items-center justify-between text-xs font-mono font-bold text-[#E6EDF3] uppercase tracking-wider">
-            <span className="flex items-center gap-2">
-              <Box className="w-4 h-4 text-emerald-400" />
-              Inventory Summary
-            </span>
-            <ChevronRight className="w-4 h-4 text-[#8B949E]" />
+            <span className="flex items-center gap-2"><Box className="w-4 h-4 text-emerald-400" /> Inventory Summary</span>
           </div>
-
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs font-mono">
               <thead>
                 <tr className="border-b border-[#21262D] text-[#8B949E] text-[11px]">
                   <th className="pb-2 font-normal">Item</th>
-                  <th className="pb-2 font-normal">Current Level</th>
+                  <th className="pb-2 font-normal">Level</th>
                   <th className="pb-2 font-normal">Consumption (24h)</th>
                   <th className="pb-2 font-normal">Remaining</th>
-                  <th className="pb-2 font-normal">Predicted Refill</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#21262D]/60">
-                {reportData.inventory.map((inv, idx) => (
+                {inventory.map((inv: any, idx: number) => (
                   <tr key={idx} className="hover:bg-[#1C2128]">
                     <td className="py-2.5 font-semibold text-white">{inv.name}</td>
                     <td className="py-2.5">
                       <div className="flex items-center gap-2 w-28">
                         <div className="h-1.5 flex-1 bg-[#21262D] rounded-full overflow-hidden">
-                          <div
-                            className={`h-full rounded-full ${inv.isWarning ? 'bg-amber-400' : 'bg-emerald-400'}`}
-                            style={{ width: `${inv.pct}%` }}
-                          />
+                          <div className={`h-full rounded-full ${inv.is_warning ? 'bg-amber-400' : 'bg-emerald-400'}`} style={{ width: `${inv.pct}%` }} />
                         </div>
                         <span className="text-[11px] text-[#8B949E] font-bold">{inv.pct}%</span>
                       </div>
                     </td>
-                    <td className="py-2.5 text-[#C9D1D9]">{inv.consumption}</td>
-                    <td className={`py-2.5 font-bold ${inv.isWarning ? 'text-amber-400' : 'text-emerald-400'}`}>
-                      {inv.remaining}
-                    </td>
-                    <td className={`py-2.5 ${inv.isWarning ? 'text-amber-400 font-bold' : 'text-[#8B949E]'}`}>
-                      {inv.refill}
+                    <td className="py-2.5 text-[#C9D1D9]">{inv.consumption_24h}</td>
+                    <td className={`py-2.5 font-bold ${inv.is_warning ? 'text-amber-400' : 'text-emerald-400'}`}>
+                      {inv.remaining_hrs} hrs
                     </td>
                   </tr>
                 ))}
@@ -392,196 +363,110 @@ ${reportData.actions.map((a) => `${a.id}. ${a.title} (${a.impact})`).join('\n')}
           </div>
         </div>
 
-        {/* Right: Alerts & Diagnostics */}
         <div className="p-5 rounded-xl bg-[#161B22] border border-[#21262D] space-y-4">
           <div className="flex items-center justify-between text-xs font-mono font-bold text-[#E6EDF3] uppercase tracking-wider">
-            <span className="flex items-center gap-2">
-              <Activity className="w-4 h-4 text-amber-400" />
-              Alerts & Diagnostics
-            </span>
-            <ChevronRight className="w-4 h-4 text-[#8B949E]" />
+            <span className="flex items-center gap-2"><Activity className="w-4 h-4 text-amber-400" /> Alerts & Diagnostics</span>
           </div>
-
           <div className="space-y-3">
-            {reportData.alerts.map((alt, idx) => (
-              <div
-                key={idx}
-                className="p-3 rounded-lg bg-[#0D1117] border border-[#21262D] flex items-center justify-between text-xs font-mono hover:border-[#30363D] transition-colors group cursor-pointer"
-              >
-                <div className="flex items-center gap-3">
-                  {alt.severity === 'warning' ? (
-                    <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
-                  ) : (
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                  )}
-                  <span
-                    className={`font-bold ${alt.severity === 'warning' ? 'text-amber-400' : 'text-emerald-400'}`}
-                  >
-                    {alt.type}
-                  </span>
-                  <span className="text-[#C9D1D9] font-sans text-xs">{alt.message}</span>
-                </div>
-
-                <div className="flex items-center gap-2 text-[#8B949E]">
-                  <span>{alt.time}</span>
-                  <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-                </div>
+            {alerts.length === 0 ? (
+              <div className="p-3 rounded-lg bg-[#0D1117] border border-emerald-500/20 flex items-center gap-3 text-xs font-mono">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span className="text-emerald-400 font-bold">All Clear — No active alerts in the last 24 hours.</span>
               </div>
-            ))}
+            ) : (
+              alerts.map((alt: any, idx: number) => (
+                <div key={idx} className="p-3 rounded-lg bg-[#0D1117] border border-[#21262D] flex items-center justify-between text-xs font-mono hover:border-[#30363D] transition-colors">
+                  <div className="flex items-center gap-3">
+                    {alt.severity === 'warning' || alt.severity === 'medium' ? (
+                      <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+                    ) : (
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    )}
+                    <span className={`font-bold ${alt.severity === 'warning' || alt.severity === 'medium' ? 'text-amber-400' : 'text-emerald-400'}`}>{alt.type}</span>
+                    <span className="text-[#C9D1D9] font-sans text-xs">{alt.message}</span>
+                  </div>
+                  <span className="text-[#8B949E] shrink-0">{alt.time}</span>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
 
-      {/* 5. ROW 4: 4 BOTTOM CARDS (Telemetry, Business Analytics, Predictive Forecast, Recommended Actions) */}
+      {/* 5. ROW 4: 4 BOTTOM CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Card 1: Telemetry Summary */}
+        {/* Telemetry Summary */}
         <div className="p-4 rounded-xl bg-[#161B22] border border-[#21262D] space-y-3">
           <div className="flex items-center justify-between text-xs font-mono font-bold text-[#E6EDF3] uppercase tracking-wider">
-            <span className="flex items-center gap-1.5">
-              <Activity className="w-3.5 h-3.5 text-blue-400" />
-              Telemetry Summary
-            </span>
-            <ChevronRight className="w-3.5 h-3.5 text-[#8B949E]" />
+            <span className="flex items-center gap-1.5"><Activity className="w-3.5 h-3.5 text-blue-400" /> Telemetry Summary</span>
           </div>
-
           <div className="space-y-2 text-[11px] font-mono">
             <div className="flex justify-between text-[#8B949E] border-b border-[#21262D] pb-1">
               <span>Metric</span>
-              <span className="flex gap-3">
-                <span>Min</span>
-                <span>Max</span>
-                <span>Avg</span>
-                <span>Trend</span>
-              </span>
+              <span className="flex gap-3"><span>Min</span><span>Max</span><span>Avg</span></span>
             </div>
-            {reportData.telemetry.map((t, idx) => (
+            {telemetry.map((t: any, idx: number) => (
               <div key={idx} className="flex justify-between items-center text-[#C9D1D9]">
                 <span className="truncate pr-2 font-medium">{t.metric}</span>
                 <div className="flex items-center gap-3 shrink-0">
                   <span className="text-[#8B949E]">{t.min}</span>
                   <span className="text-[#8B949E]">{t.max}</span>
                   <span className="font-bold text-white">{t.avg}</span>
-                  <MiniSparkline color="#10B981" points={t.points} />
+                  <MiniSparkline color="#10B981" points={[t.min, t.avg, t.max, t.avg]} />
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Card 2: Business Analytics */}
+        {/* Business Analytics */}
         <div className="p-4 rounded-xl bg-[#161B22] border border-[#21262D] space-y-3">
           <div className="flex items-center justify-between text-xs font-mono font-bold text-[#E6EDF3] uppercase tracking-wider">
-            <span className="flex items-center gap-1.5">
-              <BarChart3 className="w-3.5 h-3.5 text-emerald-400" />
-              Business Analytics
-            </span>
-            <ChevronRight className="w-3.5 h-3.5 text-[#8B949E]" />
+            <span className="flex items-center gap-1.5"><BarChart3 className="w-3.5 h-3.5 text-emerald-400" /> Business Analytics</span>
           </div>
-
           <div className="space-y-2.5 text-xs font-mono">
-            <div className="flex justify-between items-center">
-              <span className="text-[#8B949E]">Revenue</span>
-              <span className="font-bold text-white flex items-center gap-1">
-                ₹65,340 <span className="text-[10px] text-emerald-400 font-bold">↑ 14.2%</span>
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-[#8B949E]">Orders</span>
-              <span className="font-bold text-white flex items-center gap-1">
-                620 <span className="text-[10px] text-emerald-400 font-bold">↑ 12.7%</span>
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-[#8B949E]">Top Selling Beverage</span>
-              <span className="font-bold text-emerald-400">Cappuccino (42%)</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-[#8B949E]">Peak Hours</span>
-              <span className="font-bold text-white">6 PM – 9 PM</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-[#8B949E]">Avg. Order Time</span>
-              <span className="font-bold text-white">48 sec</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-[#8B949E]">Customer Rating</span>
-              <span className="font-bold text-amber-400">4.8 / 5</span>
-            </div>
-            <div className="pt-1 flex items-center justify-between text-[11px] text-[#8B949E]">
-              <span>Revenue Trend</span>
-              <MiniSparkline color="#10B981" points={[12, 18, 25, 20, 32, 45, 50]} />
-            </div>
+            <div className="flex justify-between items-center"><span className="text-[#8B949E]">Revenue</span><span className="font-bold text-white">₹{kpis.revenue_inr?.toLocaleString('en-IN')}</span></div>
+            <div className="flex justify-between items-center"><span className="text-[#8B949E]">Orders</span><span className="font-bold text-white">{kpis.total_orders}</span></div>
+            <div className="flex justify-between items-center"><span className="text-[#8B949E]">Top Selling</span><span className="font-bold text-emerald-400">{biz.top_selling || 'N/A'}</span></div>
+            <div className="flex justify-between items-center"><span className="text-[#8B949E]">Peak Hours</span><span className="font-bold text-white">{biz.peak_hours || 'N/A'}</span></div>
+            <div className="flex justify-between items-center"><span className="text-[#8B949E]">Avg. Order Time</span><span className="font-bold text-white">{biz.avg_order_time_sec || 48} sec</span></div>
+            <div className="flex justify-between items-center"><span className="text-[#8B949E]">Customer Rating</span><span className="font-bold text-amber-400">{biz.customer_rating || 4.8} / 5</span></div>
           </div>
         </div>
 
-        {/* Card 3: Predictive Forecast */}
+        {/* Predictive Forecast */}
         <div className="p-4 rounded-xl bg-[#161B22] border border-[#21262D] space-y-3">
           <div className="flex items-center justify-between text-xs font-mono font-bold text-[#E6EDF3] uppercase tracking-wider">
-            <span className="flex items-center gap-1.5">
-              <TrendingUp className="w-3.5 h-3.5 text-purple-400" />
-              Predictive Forecast
-            </span>
-            <ChevronRight className="w-3.5 h-3.5 text-[#8B949E]" />
+            <span className="flex items-center gap-1.5"><TrendingUp className="w-3.5 h-3.5 text-purple-400" /> Predictive Forecast</span>
           </div>
-
           <div className="space-y-2.5 text-xs font-mono">
-            <div className="flex justify-between items-center">
-              <span className="text-[#8B949E]">Predicted Revenue (Tomorrow)</span>
-              <span className="font-bold text-white">₹71,000</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-[#8B949E]">Expected Orders</span>
-              <span className="font-bold text-white">680</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-[#8B949E]">Milk Refill Forecast</span>
-              <span className="font-bold text-amber-400">8 hours</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-[#8B949E]">Beans Refill Forecast</span>
-              <span className="font-bold text-white">26 hours</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-[#8B949E]">Maintenance Forecast</span>
-              <span className="font-bold text-white">Cleaning in 2 days</span>
-            </div>
+            <div className="flex justify-between items-center"><span className="text-[#8B949E]">Predicted Revenue</span><span className="font-bold text-white">₹{forecast.predicted_revenue_tomorrow_inr?.toLocaleString('en-IN') || '—'}</span></div>
+            <div className="flex justify-between items-center"><span className="text-[#8B949E]">Expected Orders</span><span className="font-bold text-white">{forecast.expected_orders_tomorrow || '—'}</span></div>
+            <div className="flex justify-between items-center"><span className="text-[#8B949E]">Milk Refill</span><span className={`font-bold ${(forecast.milk_refill_hrs || 99) < 12 ? 'text-amber-400' : 'text-white'}`}>{forecast.milk_refill_hrs || '—'} hrs</span></div>
+            <div className="flex justify-between items-center"><span className="text-[#8B949E]">Beans Refill</span><span className="font-bold text-white">{forecast.beans_refill_hrs || '—'} hrs</span></div>
+            <div className="flex justify-between items-center"><span className="text-[#8B949E]">Maintenance</span><span className="font-bold text-white">{forecast.maintenance_forecast || '—'}</span></div>
             <div className="space-y-1 pt-1">
-              <div className="flex justify-between text-[11px]">
-                <span className="text-[#8B949E]">AI Confidence</span>
-                <span className="font-bold text-emerald-400">96%</span>
-              </div>
+              <div className="flex justify-between text-[11px]"><span className="text-[#8B949E]">AI Confidence</span><span className="font-bold text-emerald-400">{forecast.ai_confidence_pct || 92}%</span></div>
               <div className="h-1.5 w-full bg-[#21262D] rounded-full overflow-hidden">
-                <div className="h-full bg-emerald-400 rounded-full w-[96%]" />
+                <div className="h-full bg-emerald-400 rounded-full" style={{ width: `${forecast.ai_confidence_pct || 92}%` }} />
               </div>
             </div>
           </div>
         </div>
 
-        {/* Card 4: Recommended Actions */}
+        {/* Recommended Actions */}
         <div className="p-4 rounded-xl bg-[#161B22] border border-[#21262D] space-y-3">
           <div className="flex items-center justify-between text-xs font-mono font-bold text-[#E6EDF3] uppercase tracking-wider">
-            <span className="flex items-center gap-1.5">
-              <ClipboardList className="w-3.5 h-3.5 text-emerald-400" />
-              Recommended Actions
-            </span>
-            <ChevronRight className="w-3.5 h-3.5 text-[#8B949E]" />
+            <span className="flex items-center gap-1.5"><ClipboardList className="w-3.5 h-3.5 text-emerald-400" /> Recommended Actions</span>
           </div>
-
           <div className="space-y-2 text-xs font-mono">
-            {reportData.actions.map((act) => (
-              <div
-                key={act.id}
-                className="p-2.5 rounded-lg bg-[#0D1117] border border-[#21262D] flex items-center justify-between hover:border-[#30363D] transition-colors"
-              >
+            {actions.map((act: any) => (
+              <div key={act.id} className="p-2.5 rounded-lg bg-[#0D1117] border border-[#21262D] flex items-center justify-between hover:border-[#30363D] transition-colors">
                 <div className="flex items-center gap-2">
-                  <span className="w-4 h-4 rounded-full bg-[#21262D] flex items-center justify-center text-[10px] font-bold text-emerald-400">
-                    {act.id}
-                  </span>
+                  <span className="w-4 h-4 rounded-full bg-[#21262D] flex items-center justify-center text-[10px] font-bold text-emerald-400">{act.id}</span>
                   <span className="font-medium text-white text-[11px] truncate">{act.title}</span>
                 </div>
-                <span className={`text-[9px] font-bold px-2 py-0.5 rounded border shrink-0 ${act.impactColor}`}>
-                  {act.impact}
-                </span>
+                <span className={`text-[9px] font-bold px-2 py-0.5 rounded border shrink-0 ${impactColor(act.impact)}`}>{act.impact}</span>
               </div>
             ))}
           </div>
@@ -591,28 +476,15 @@ ${reportData.actions.map((a) => `${a.id}. ${a.title} (${a.impact})`).join('\n')}
       {/* 6. BOTTOM FOOTER METADATA BAR */}
       <div className="pt-4 border-t border-[#21262D] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-[#8B949E]">
         <div className="flex items-center gap-6 flex-wrap">
-          <div>
-            Generated By <span className="text-white font-semibold">NexPod AI Intelligence</span>
-          </div>
-          <div>
-            Analysis Window <span className="text-white font-semibold">Last 24 Hours</span>
-          </div>
-          <div>
-            AI Confidence <span className="text-emerald-400 font-bold">98%</span>
-          </div>
+          <div>Generated By <span className="text-white font-semibold">{report.generated_by}</span></div>
+          <div>Analysis Window <span className="text-white font-semibold">Last 24 Hours</span></div>
+          <div>AI Confidence <span className="text-emerald-400 font-bold">{forecast.ai_confidence_pct || 92}%</span></div>
         </div>
-
-        {/* Report ID + Copy/Dropdown */}
         <div className="flex items-center gap-2 bg-[#161B22] border border-[#30363D] px-3 py-1.5 rounded-lg">
-          <span>Report ID: <span className="text-white font-bold">{reportData.reportId}</span></span>
-          <button
-            onClick={handleCopyReportId}
-            className="hover:text-white transition-colors p-1 text-[#8B949E]"
-            title="Copy Report ID"
-          >
+          <span>Report ID: <span className="text-white font-bold">{report.report_id}</span></span>
+          <button onClick={handleCopyReportId} className="hover:text-white transition-colors p-1 text-[#8B949E]" title="Copy Report ID">
             {copiedReportId ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
           </button>
-          <ChevronDown className="w-3.5 h-3.5 text-[#8B949E]" />
         </div>
       </div>
     </div>
