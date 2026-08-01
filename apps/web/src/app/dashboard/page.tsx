@@ -677,10 +677,12 @@ export default function Home() {
                 </Link>
               </div>
             </div>
-          </motion.div>
 
-          {/* AI REASONING & EXPLAINABILITY PANEL */}
-          <AIReasoningPanel reasoningData={reasoningData} className="mb-7.5" />
+            {/* EMBEDDED AI REASONING & EXPLAINABILITY (XAI) PANEL */}
+            <div className="mt-6 border-t border-strokedark pt-6">
+              <AIReasoningPanel reasoningData={reasoningData} className="bg-transparent border-0 p-0 shadow-none" />
+            </div>
+          </motion.div>
 
           {/* 3. IMPROVED KPI CARDS (6-Column Grid) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 xl:gap-6 mb-7.5">
