@@ -14,6 +14,7 @@ import { api, OrderItem } from '../../lib/api';
 import { OrdersTable } from '../../components/OrdersTable';
 import { Sidebar } from '../../components/Sidebar';
 import { Header } from '../../components/Header';
+import { CardSkeleton, TableRowSkeleton } from '../../components/ui/skeleton';
 import { usePolling } from '../../hooks/usePolling';
 import { logger } from '../../lib/logger';
 
@@ -21,6 +22,7 @@ export default function OrdersPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notifications, setNotifications] = useState(1);
   const [ordersList, setOrdersList] = useState<OrderItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [kpis, setKpis] = useState({
     todaysOrders: '0',
     completed: '0',
@@ -55,6 +57,8 @@ export default function OrdersPage() {
       });
     } catch (err) {
       logger.error("Failed to fetch orders", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -153,45 +157,59 @@ export default function OrdersPage() {
 
           {/* KPI Cards */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5 mb-7.5">
-            {kpiCards.map((card, i) => {
-              const Icon = card.icon;
-              return (
-                <motion.div
-                  key={card.label}
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.35, delay: i * 0.06 }}
-                  className="rounded-2xl border border-strokedark bg-boxdark p-6 shadow-default flex flex-col justify-between hover:shadow-lg transition-all duration-300"
-                >
-                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-meta-4 text-primary">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <div className="mt-4 flex items-end justify-between">
-                    <div>
-                      <h4 className="text-2xl font-extrabold text-white font-mono">
-                        {card.value}
-                      </h4>
-                      <span className="text-xs font-semibold text-bodydark2 mt-1 block">
-                        {card.label}
-                      </span>
-                    </div>
-                    <span className={`text-xs font-semibold font-mono ${card.changeColor}`}>
-                      {card.change}
-                    </span>
-                  </div>
-                </motion.div>
-              );
-            })}
+            {loading
+              ? Array.from({ length: 4 }).map((_, idx) => <CardSkeleton key={idx} />)
+              : kpiCards.map((card, i) => {
+                  const Icon = card.icon;
+                  return (
+                    <motion.div
+                      key={card.label}
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.35, delay: i * 0.06 }}
+                      className="rounded-2xl border border-strokedark bg-boxdark p-6 shadow-default flex flex-col justify-between hover:shadow-lg transition-all duration-300"
+                    >
+                      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-meta-4 text-primary">
+                        <Icon className="h-5 w-5" />
+                      </div>
+                      <div className="mt-4 flex items-end justify-between">
+                        <div>
+                          <h4 className="text-2xl font-extrabold text-white font-mono">
+                            {card.value}
+                          </h4>
+                          <span className="text-xs font-semibold text-bodydark2 mt-1 block">
+                            {card.label}
+                          </span>
+                        </div>
+                        <span className={`text-xs font-semibold font-mono ${card.changeColor}`}>
+                          {card.change}
+                        </span>
+                      </div>
+                    </motion.div>
+                  );
+                })}
           </div>
 
           {/* Orders Table */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.25 }}
-          >
-            <OrdersTable orders={displayOrders} />
-          </motion.div>
+          {loading ? (
+            <div className="rounded-2xl border border-strokedark bg-boxdark p-6 shadow-default space-y-3">
+              <div className="flex justify-between items-center pb-4 border-b border-strokedark">
+                <div className="h-6 w-32 bg-white/5 rounded animate-pulse" />
+                <div className="h-8 w-48 bg-white/5 rounded animate-pulse" />
+              </div>
+              {Array.from({ length: 6 }).map((_, idx) => (
+                <TableRowSkeleton key={idx} />
+              ))}
+            </div>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.25 }}
+            >
+              <OrdersTable orders={displayOrders} />
+            </motion.div>
+          )}
         </main>
 
         {/* Footer */}
