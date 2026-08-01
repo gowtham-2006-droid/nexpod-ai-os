@@ -62,6 +62,7 @@ import { SdkSandbox } from '../components/SdkSandbox';
 import { DashboardFooter } from '../components/DashboardFooter';
 import { DeveloperDocs } from '../components/DeveloperDocs';
 import AIChatSidebar from '../components/ui/ai-chat-sidebar';
+import StaggeredMenu from '../components/ui/StaggeredMenu';
 
 export default function LandingPage() {
   const router = useRouter();
@@ -208,9 +209,38 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary selection:text-white dark:selection:text-black">
+    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary selection:text-white dark:selection:text-black relative">
       {/* Scroll Progress Indicator */}
       <ScrollProgress className="bg-gradient-to-r from-primary via-chart-4 to-primary h-1" />
+
+      {/* React Bits Staggered Menu */}
+      <div className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
+        <StaggeredMenu
+          position="right"
+          items={[
+            { label: 'Dashboard', ariaLabel: 'Go to Owner Dashboard', link: '/dashboard' },
+            { label: 'Intelligence', ariaLabel: 'Go to AI Intelligence', link: '/intelligence' },
+            { label: 'Telemetry', ariaLabel: 'Go to Pod Telemetry', link: '/telemetry' },
+            { label: 'Reports', ariaLabel: 'Go to Daily Reports', link: '/reports' },
+            { label: 'Customer Kiosk', ariaLabel: 'Go to Customer Kiosk', link: '/customer' },
+            { label: 'Settings', ariaLabel: 'Go to Settings', link: '/settings' },
+          ]}
+          socialItems={[
+            { label: 'GitHub', link: 'https://github.com/gowtham-2006-droid/nexpod-ai-os' },
+            { label: 'Owner Portal', link: '/dashboard' },
+            { label: 'Kiosk App', link: '/customer' },
+          ]}
+          displaySocials={true}
+          displayItemNumbering={true}
+          menuButtonColor="#ffffff"
+          openMenuButtonColor="#ffffff"
+          changeMenuColorOnOpen={true}
+          colors={['#10B981', '#059669']}
+          logoUrl="https://res.cloudinary.com/dkt9vrlf0/image/upload/v1784138600/ChatGPT_Image_Jul_15_2026_11_32_55_PM_k0hqoz.png"
+          accentColor="#10B981"
+          isFixed={true}
+        />
+      </div>
 
       {/* Notch Navbar */}
       <NotchNavbar
