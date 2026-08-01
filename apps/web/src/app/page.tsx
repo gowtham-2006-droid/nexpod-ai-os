@@ -242,10 +242,10 @@ export default function LandingPage() {
       {/* Hero Section */}
       <HoleBackground
         strokeColor="#30363D"
-        numberOfLines={65}
-        numberOfDiscs={60}
+        numberOfLines={70}
+        numberOfDiscs={65}
         particleRGBColor={[16, 185, 129]}
-        className="min-h-screen"
+        className="w-full h-full min-h-screen flex flex-col justify-center border-b border-[#21262D]"
       >
         <section className="relative min-h-screen flex flex-col justify-center pt-24 sm:pt-28 md:pt-32 pb-16 overflow-hidden">
           {/* Subtle Meteors */}
