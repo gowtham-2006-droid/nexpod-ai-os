@@ -163,6 +163,12 @@ function AnimateIcon({
   const resolveAnimateEndRef = React.useRef<(() => void) | null>(null);
   const activeRef = React.useRef<boolean>(localAnimate);
 
+  const { ref: inViewRef } = useIsInView(null, {
+    inView: animateOnView !== false,
+    inViewOnce: animateOnViewOnce,
+    inViewMargin: animateOnViewMargin,
+  });
+
   const childProps = (
     React.isValidElement(effectiveChildren) ? (effectiveChildren as React.ReactElement).props : {}
   ) as AnyProps;
