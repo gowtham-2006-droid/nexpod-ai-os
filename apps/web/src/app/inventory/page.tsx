@@ -21,7 +21,6 @@ import {
 } from 'lucide-react';
 
 import { api } from '../../lib/api';
-import { inventoryPageData } from '../../data/inventoryData';
 import { CircularProgress } from '../../components/CircularProgress';
 import { ConsumptionChart } from '../../components/ConsumptionChart';
 import { Sidebar } from '../../components/Sidebar';
