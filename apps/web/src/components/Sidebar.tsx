@@ -4,7 +4,6 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  Compass,
   LayoutDashboard,
   ShoppingCart,
   Radio,
@@ -14,7 +13,23 @@ import {
   Settings,
   ArrowLeft,
   FileText,
+  ShieldCheck,
+  Zap,
 } from 'lucide-react';
+import {
+  SidebarProvider,
+  Sidebar as ShadcnSidebar,
+  SidebarHeader,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarFooter,
+  SidebarRail,
+  SidebarMenuBadge,
+} from './ui/sidebar';
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -26,12 +41,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen })
 
   const menuGroups = [
     {
-      title: 'MENU',
+      title: 'MISSION CONTROL',
       items: [
         {
           label: 'Dashboard',
           icon: LayoutDashboard,
           path: '/dashboard',
+          badge: 'Live',
         },
         {
           label: 'Orders',
@@ -57,16 +73,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen })
           label: 'NexPod Intelligence',
           icon: Brain,
           path: '/intelligence',
+          badge: 'AI',
         },
         {
-          label: 'Reports',
+          label: 'Daily Reports',
           icon: FileText,
           path: '/reports',
         },
       ],
     },
     {
-      title: '',
+      title: 'SYSTEM PREFERENCES',
       items: [
         {
           label: 'Settings',
@@ -85,75 +102,88 @@ export const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen })
   };
 
   return (
-    <aside
-      className={`absolute left-0 top-0 z-9999 flex h-screen w-72.5 flex-col overflow-y-hidden bg-sidebar duration-300 ease-linear lg:static lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+    <SidebarProvider defaultOpen={true}>
+      <aside
+        className={`fixed lg:static left-0 top-0 z-50 h-screen w-72 flex-col bg-[#0D1117] border-r border-[#21262D] duration-300 ease-in-out lg:translate-x-0 ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
-    >
-      {/* SIDEBAR HEADER */}
-      <div className="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
-        <div className="flex h-16 items-center justify-start overflow-hidden">
-          <img
-            src="https://res.cloudinary.com/dkt9vrlf0/image/upload/v1784138600/ChatGPT_Image_Jul_15_2026_11_32_55_PM_k0hqoz.png"
-            alt="NexPod Logo"
-            className="h-full object-contain"
-          />
-        </div>
+      >
+        <ShadcnSidebar collapsible="none" className="h-full w-full bg-[#0D1117]">
+          {/* SIDEBAR HEADER */}
+          <SidebarHeader className="flex flex-row items-center justify-between px-5 py-4 border-b border-[#21262D]">
+            <Link href="/dashboard" className="flex items-center gap-3">
+              <img
+                src="https://res.cloudinary.com/dkt9vrlf0/image/upload/v1784138600/ChatGPT_Image_Jul_15_2026_11_32_55_PM_k0hqoz.png"
+                alt="NexPod Logo"
+                className="h-9 object-contain"
+              />
+            </Link>
 
-        {/* Mobile close button */}
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          aria-controls="sidebar"
-          className="block lg:hidden text-sidebar-foreground hover:text-sidebar-foreground/80"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </button>
-      </div>
+            {/* Mobile close button */}
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              aria-controls="sidebar"
+              className="block lg:hidden p-1.5 rounded-lg text-[#8B949E] hover:text-white hover:bg-[#161B22] transition-colors"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+          </SidebarHeader>
 
-      {/* SIDEBAR NAVIGATION */}
-      <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear">
-        <nav className="mt-5 px-4 py-4 lg:mt-9 lg:px-6">
-          {menuGroups.map((group, groupIdx) => (
-            <div key={groupIdx} className="mb-6">
-              {groupIdx > 0 && (
-                <hr className="my-5 border-sidebar-border/30 mb-6" />
-              )}
-              {group.title && (
-                <h3 className="mb-4 ml-4 text-xs font-semibold text-sidebar-foreground/50 tracking-wider">
-                  {group.title}
-                </h3>
-              )}
+          {/* SIDEBAR CONTENT */}
+          <SidebarContent className="py-4">
+            {menuGroups.map((group, groupIdx) => (
+              <SidebarGroup key={groupIdx} className="mb-4">
+                {group.title && (
+                  <SidebarGroupLabel className="text-[10px] font-mono text-[#8B949E] px-3 mb-1.5 font-bold uppercase tracking-wider">
+                    {group.title}
+                  </SidebarGroupLabel>
+                )}
 
-              <ul className="mb-6 flex flex-col gap-1.5">
-                {group.items.map((item, itemIdx) => {
-                  const Icon = item.icon;
-                  const active = isLinkActive(item.path);
-                  const isHash = item.path.startsWith('#');
+                <SidebarMenu>
+                  {group.items.map((item, itemIdx) => {
+                    const Icon = item.icon;
+                    const active = isLinkActive(item.path);
 
-                  return (
-                    <li key={itemIdx}>
-                      <Link
-                        href={item.path}
-                        onClick={(e) => {
-                          if (isHash) e.preventDefault();
-                          // close sidebar on mobile navigation
-                          setSidebarOpen(false);
-                        }}
-                        className={`group relative flex items-center gap-2.5 rounded-lg px-4 py-2 text-sm font-medium duration-300 ease-in-out hover:bg-sidebar-accent hover:text-sidebar-accent-foreground ${active
-                          ? 'bg-sidebar-accent text-sidebar-accent-foreground border-l-4 border-sidebar-primary'
-                          : 'text-sidebar-foreground'
-                          }`}
-                      >
-                        <Icon className="h-4.5 w-4.5 group-hover:text-sidebar-accent-foreground" />
-                        {item.label}
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
+                    return (
+                      <SidebarMenuItem key={itemIdx}>
+                        <SidebarMenuButton
+                          isActive={active}
+                          onClick={() => setSidebarOpen(false)}
+                          className="py-2.5 px-3 rounded-xl transition-all"
+                        >
+                          <Link href={item.path} className="flex items-center gap-3 w-full">
+                            <Icon className={`h-4 w-4 ${active ? 'text-emerald-400' : 'text-[#8B949E]'}`} />
+                            <span className="font-medium">{item.label}</span>
+                            {item.badge && <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>}
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+                </SidebarMenu>
+              </SidebarGroup>
+            ))}
+          </SidebarContent>
+
+          {/* SIDEBAR FOOTER */}
+          <SidebarFooter className="p-4 border-t border-[#21262D] bg-[#090C10]">
+            <div className="flex items-center gap-3 p-2.5 rounded-xl bg-[#161B22] border border-[#21262D]">
+              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+                <Zap className="w-4 h-4" />
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span className="text-xs font-mono font-bold text-white truncate">NexPod AI OS</span>
+                <span className="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  System Nominal
+                </span>
+              </div>
             </div>
-          ))}
-        </nav>
-      </div>
-    </aside>
+          </SidebarFooter>
+
+          <SidebarRail />
+        </ShadcnSidebar>
+      </aside>
+    </SidebarProvider>
   );
 };
