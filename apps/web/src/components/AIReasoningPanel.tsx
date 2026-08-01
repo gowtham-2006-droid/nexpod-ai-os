@@ -125,19 +125,18 @@ export const AIReasoningPanel: React.FC<AIReasoningPanelProps> = ({
 
       {/* Compact summary bar when collapsed */}
       {isCollapsible && !isExpanded && (
-        <div className="pt-2 text-xs font-mono text-bodydark2 flex items-center justify-between border-t border-strokedark/50">
-          <div className="flex items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap">
-            <span className="text-emerald-400 font-bold">✓ Telemetry Stable</span>
-            <span>·</span>
-            <span className="text-amber-400 font-bold">⚠ Milk Consumption High</span>
-            <span>·</span>
-            <span className="text-white">{predictedNextEvent}</span>
+        <div className="pt-3 border-t border-strokedark flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2 overflow-hidden text-xs font-mono text-bodydark2">
+            <span className="text-emerald-400 font-bold px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20">✓ Telemetry Stable</span>
+            <span className="text-amber-400 font-bold px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20">⚠ Milk Consumption High</span>
+            <span className="text-white hidden md:inline">· {predictedNextEvent}</span>
           </div>
           <button
             onClick={() => setIsExpanded(true)}
-            className="text-[10px] text-emerald-400 font-bold hover:underline shrink-0 ml-2"
+            className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/40 font-mono font-bold text-xs transition-all shadow-[0_0_15px_rgba(16,185,129,0.15)] cursor-pointer"
           >
-            View Details →
+            <Brain className="w-4 h-4 text-emerald-400" />
+            <span>Explain AI Reasoning ▾</span>
           </button>
         </div>
       )}
