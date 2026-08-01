@@ -34,8 +34,6 @@ import { api } from '../lib/api';
 
 // Installed Shadcn/MagicUI/VengenceUI/CultUI components
 import { ScrollProgress } from '../components/ui/scroll-progress';
-import { NotchNavbar } from '../components/ui/notch-navbar';
-import { AnimatedThemeToggler } from '../components/ui/animated-theme-toggler';
 import { Meteors } from '../components/ui/meteors';
 import { Ripple } from '../components/ui/ripple';
 import { TextAnimate } from '../components/ui/text-animate';
@@ -242,20 +240,7 @@ export default function LandingPage() {
         />
       </div>
 
-      {/* Notch Navbar */}
-      <NotchNavbar
-        rightElement={
-          <>
-            <AnimatedThemeToggler />
-            <Link
-              href="/dashboard"
-              className="px-4 py-2 text-xs font-bold font-mono bg-black dark:bg-white text-white dark:text-black hover:bg-black/90 dark:hover:bg-white/90 rounded-xl transition-all shadow-[0_0_15px_rgba(255,255,255,0.05)]"
-            >
-              Dashboard
-            </Link>
-          </>
-        }
-      />
+
 
       {/* Hero Section */}
       <section className="relative min-h-screen flex flex-col justify-center pt-16 pb-16 overflow-hidden bg-background">
