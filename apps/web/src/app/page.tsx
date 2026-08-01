@@ -252,44 +252,36 @@ export default function LandingPage() {
           <Meteors number={14} minDuration={4} maxDuration={8} className="opacity-40" />
 
           <div className="w-full max-w-[1600px] 2xl:max-w-[1850px] mx-auto px-6 sm:px-10 md:px-14 lg:px-16 xl:px-20 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 xl:gap-20 2xl:gap-24 items-center relative z-10">
-            {/* Left Column - Text Details under the Lamp spotlight */}
-            <div className="lg:col-span-6 xl:col-span-6 2xl:col-span-6 flex flex-col items-start text-left space-y-6 lg:space-y-8">
-              {/* Lamp Container wrapping ONLY the heading */}
-              <LampContainer 
-                className="h-[340px] sm:h-[380px] md:h-[420px] lg:h-[440px] min-h-[320px] bg-transparent w-full justify-start items-start text-left"
-                contentClassName="items-start px-0 w-full"
-              >
-                <div className="space-y-3 relative py-2 w-full text-left">
-                  {/* Sparkles Core Background for Text */}
-                  <div className="absolute inset-0 w-full h-full z-0 pointer-events-none">
-                    <SparklesCore
-                      id="hero-sparkles"
-                      background="transparent"
-                      minSize={0.4}
-                      maxSize={1.4}
-                      particleDensity={60}
-                      className="w-full h-full"
-                      particleColor="var(--foreground)"
-                      speed={0.3}
-                    />
-                  </div>
-                  
-                  <div className="relative z-10 pointer-events-auto">
-                    <span className="text-xs sm:text-sm font-mono text-primary uppercase tracking-[0.25em] font-bold block mb-2">
-                      NexPod AI Operating System
-                    </span>
-                    <KineticText
-                      text="The AI Operating System"
-                      as="h1"
-                      className="text-4xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-black text-foreground tracking-tight leading-[1.05] justify-start"
-                    />
-                  </div>
+            {/* Left Column - Text Details */}
+            <div className="lg:col-span-6 xl:col-span-6 2xl:col-span-6 flex flex-col items-start text-left space-y-6 lg:space-y-8 relative z-20">
+              <div className="space-y-3 relative py-2 w-full text-left">
+                {/* Sparkles Core Background for Text */}
+                <div className="absolute inset-0 w-full h-full z-0 pointer-events-none">
+                  <SparklesCore
+                    id="hero-sparkles"
+                    background="transparent"
+                    minSize={0.4}
+                    maxSize={1.4}
+                    particleDensity={60}
+                    className="w-full h-full"
+                    particleColor="var(--foreground)"
+                    speed={0.3}
+                  />
                 </div>
-              </LampContainer>
+                
+                <div className="relative z-10 pointer-events-auto">
+                  <span className="text-xs sm:text-sm font-mono text-primary uppercase tracking-[0.25em] font-bold block mb-2">
+                    NexPod AI Operating System
+                  </span>
+                  <KineticText
+                    text="The AI Operating System"
+                    as="h1"
+                    className="text-4xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-black text-foreground tracking-tight leading-[1.05] justify-start"
+                  />
+                </div>
+              </div>
 
-              {/* Rest of Hero contents positioned below the Lamp */}
-              <div className="w-full flex flex-col items-start text-left space-y-6 lg:space-y-8 -mt-32 sm:-mt-36 md:-mt-40 pb-4 relative z-20">
-                {/* Highlighter highlights */}
+              {/* Highlighter highlights */}
                 <div className="flex flex-wrap items-center gap-y-3 gap-x-4 pt-1">
                   <Highlighter action="highlight" color="var(--hero-highlight-bg, rgba(255, 255, 255, 0.08))" strokeWidth={2}>
                     <span className="text-foreground font-mono text-xs md:text-sm lg:text-base px-3 py-1 rounded border border-foreground/10">
@@ -329,9 +321,7 @@ export default function LandingPage() {
                     >
                       Customer App
                     </InteractiveHoverButton>
-                  </Link>
                 </div>
-              </div>
             </div>
 
             {/* Right Column - Video Player / Mockup Container scaled ~35% larger */}
