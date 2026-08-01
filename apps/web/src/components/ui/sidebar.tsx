@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { PanelLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -178,34 +177,27 @@ export const Sidebar = React.forwardRef<
 
     if (isMobile) {
       return (
-        <AnimatePresence>
+        <>
           {openMobile && (
             <>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
+              <div
                 onClick={() => setOpenMobile(false)}
-                className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm lg:hidden"
+                className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm lg:hidden transition-opacity duration-300"
               />
-              <motion.div
-                initial={{ x: side === 'left' ? '-100%' : '100%' }}
-                animate={{ x: 0 }}
-                exit={{ x: side === 'left' ? '-100%' : '100%' }}
-                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              <div
+                ref={ref}
                 className={cn(
-                  'fixed inset-y-0 z-50 flex h-full w-[--sidebar-width-mobile] flex-col bg-[#0D1117] border-r border-[#21262D] p-4 text-[#C9D1D9] shadow-2xl lg:hidden',
+                  'fixed inset-y-0 z-50 flex h-full w-[--sidebar-width-mobile] flex-col bg-[#0D1117] border-r border-[#21262D] p-4 text-[#C9D1D9] shadow-2xl lg:hidden transition-transform duration-300 ease-in-out',
                   side === 'left' ? 'left-0' : 'right-0',
                   className
                 )}
-                ref={ref}
                 {...props}
               >
                 {children}
-              </motion.div>
+              </div>
             </>
           )}
-        </AnimatePresence>
+        </>
       );
     }
 
