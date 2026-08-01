@@ -595,16 +595,16 @@ export default function Home() {
                   NexPod Atrium
                 </h2>
                 <span className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[9px] font-mono font-bold border transition-all ${
-                  wsStatus === 'connected'
+                  wsStatus === 'open'
                     ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
                     : wsStatus === 'connecting'
                     ? 'bg-amber-500/15 text-amber-400 border-amber-500/30'
                     : 'bg-red-500/15 text-red-400 border-red-500/30'
                 }`}>
                   <span className={`w-1.5 h-1.5 rounded-full ${
-                    wsStatus === 'connected' ? 'bg-emerald-400 animate-pulse' : wsStatus === 'connecting' ? 'bg-amber-400 animate-ping' : 'bg-red-400'
+                    wsStatus === 'open' ? 'bg-emerald-400 animate-pulse' : wsStatus === 'connecting' ? 'bg-amber-400 animate-ping' : 'bg-red-400'
                   }`} />
-                  {wsStatus === 'connected' ? 'ONLINE (LIVE WS)' : wsStatus === 'connecting' ? 'CONNECTING...' : 'OFFLINE'}
+                  {wsStatus === 'open' ? 'ONLINE (LIVE WS)' : wsStatus === 'connecting' ? 'CONNECTING...' : 'OFFLINE'}
                 </span>
               </div>
               <p className="text-xs text-bodydark2 mt-1 font-medium">
