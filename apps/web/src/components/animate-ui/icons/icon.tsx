@@ -163,8 +163,9 @@ function AnimateIcon({
   const resolveAnimateEndRef = React.useRef<(() => void) | null>(null);
   const activeRef = React.useRef<boolean>(localAnimate);
 
-  const { ref: inViewRef } = useIsInView(null, {
-    inView: animateOnView !== false,
+  const viewOuterRef = React.useRef<HTMLElement>(null);
+  const { ref: inViewRef, isInView } = useIsInView(viewOuterRef, {
+    inView: !!animateOnView,
     inViewOnce: animateOnViewOnce,
     inViewMargin: animateOnViewMargin,
   });
@@ -283,13 +284,6 @@ function AnimateIcon({
       if (loopDelayRef.current) clearTimeout(loopDelayRef.current);
     };
   }, []);
-
-  const viewOuterRef = React.useRef<HTMLElement>(null);
-  const { ref: inViewRef, isInView } = useIsInView(viewOuterRef, {
-    inView: !!animateOnView,
-    inViewOnce: animateOnViewOnce,
-    inViewMargin: animateOnViewMargin,
-  });
 
   const startAnim = React.useCallback(
     async (anim: 'initial' | 'animate', method: 'start' | 'set' = 'start') => {
