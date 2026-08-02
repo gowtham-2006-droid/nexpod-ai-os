@@ -2,7 +2,7 @@
 
 A modern, AI-powered Operating System designed for monitoring, managing, and interacting with a fleet of autonomous, self-service retail pods (starting with automated coffee/tea brewing kiosks).
 
-This repository is organized as a monorepo containing a high-performance Python backend (API, database, and AI engines) and a digital twin Web Frontend (operator dashboard and customer portal) with support for full dark/light themes, real-time telemetry simulation, and predictive maintenance dispatch.
+This repository is organized as a monorepo containing a high-performance  Python backend (API, database, and AI engines) and a digital twin Web Frontend (operator dashboard and customer portal) with support for full dark/light themes, real-time telemetry simulation, and predictive maintenance dispatch.
 
 ---
 
