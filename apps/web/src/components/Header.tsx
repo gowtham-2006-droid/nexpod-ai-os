@@ -1,7 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { getStoredUser, clearSession } from '@/lib/auth';
 import {
   Menu,
   Search,
@@ -9,6 +11,7 @@ import {
   MessageSquare,
   ChevronDown,
   Moon,
+  LogOut,
 } from 'lucide-react';
 
 export interface HeaderAlertItem {
@@ -33,9 +36,30 @@ export const Header: React.FC<HeaderProps> = ({
   triggerAction,
   activeAlerts,
 }) => {
+  const router = useRouter();
   const [notifOpen, setNotifOpen] = useState(false);
   const [logsOpen, setLogsOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<{ email: string; role: string } | null>(null);
+
+  useEffect(() => {
+    const user = getStoredUser();
+    if (user) {
+      setCurrentUser(user);
+    }
+  }, []);
+
+  const rawName = currentUser ? (currentUser.email.includes('@') ? currentUser.email.split('@')[0] : currentUser.email) : 'innovex';
+  const formattedName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
+  const initials = rawName.slice(0, 2).toUpperCase();
+  const displayRole = currentUser?.role === 'admin' ? 'Admin' : 'Operator';
+
+  const handleSignOut = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setUserOpen(false);
+    clearSession();
+    router.push('/login');
+  };
 
   const displayCount = activeAlerts ? activeAlerts.length : notifications;
 
@@ -216,12 +240,12 @@ export const Header: React.FC<HeaderProps> = ({
               href="#"
             >
               <span className="hidden text-right lg:block">
-                <span className="block text-sm font-medium text-foreground">Elena Rostova</span>
-                <span className="block text-[10px] text-muted-foreground font-mono mt-0.5 uppercase tracking-wider">Fleet Manager</span>
+                <span className="block text-sm font-medium text-foreground">{formattedName}</span>
+                <span className="block text-[10px] text-emerald-400 font-mono mt-0.5 uppercase tracking-wider font-semibold">{displayRole}</span>
               </span>
 
-              <span className="h-9 w-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold font-mono">
-                ER
+              <span className="h-9 w-9 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center text-xs font-bold font-mono">
+                {initials}
               </span>
 
               <ChevronDown className="hidden sm:block h-4 w-4 text-muted-foreground" />
@@ -230,19 +254,20 @@ export const Header: React.FC<HeaderProps> = ({
             {userOpen && (
               <div className="absolute right-0 mt-2.5 w-48 rounded-2xl border border-strokedark bg-boxdark p-3.5 shadow-lg z-50 text-left font-sans text-xs">
                 <div className="border-b border-strokedark pb-2 mb-2">
-                  <span className="block font-bold text-white leading-tight">Elena Rostova</span>
-                  <span className="block text-[9px] text-bodydark2 font-mono uppercase tracking-wider mt-0.5">Fleet Manager</span>
+                  <span className="block font-bold text-white leading-tight">{formattedName}</span>
+                  <span className="block text-[9px] text-emerald-400 font-mono uppercase tracking-wider mt-0.5 font-semibold">{displayRole}</span>
                 </div>
                 <div className="space-y-1">
                   <Link href="/settings" onClick={() => setUserOpen(false)} className="block py-1.5 px-2 rounded hover:bg-secondary text-bodydark hover:text-white transition-colors">
                     Pod Configuration
                   </Link>
-                  <a href="#" onClick={(e) => { e.preventDefault(); setUserOpen(false); }} className="block py-1.5 px-2 rounded hover:bg-secondary text-bodydark hover:text-white transition-colors">
-                    Profile Details
-                  </a>
-                  <a href="#" onClick={(e) => { e.preventDefault(); setUserOpen(false); }} className="block py-1.5 px-2 rounded hover:bg-secondary text-bodydark hover:text-white transition-colors">
+                  <button
+                    onClick={handleSignOut}
+                    className="w-full text-left flex items-center gap-2 py-1.5 px-2 rounded hover:bg-destructive/20 text-destructive transition-colors font-mono font-medium"
+                  >
+                    <LogOut className="h-3.5 w-3.5" />
                     Sign Out
-                  </a>
+                  </button>
                 </div>
               </div>
             )}
