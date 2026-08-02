@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Loader2, Lock, Mail } from "lucide-react"
+import { Loader2, Lock, Mail, Sparkles } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { setSession } from "@/lib/auth"
@@ -105,6 +105,18 @@ export function LoginForm({
             Sign in to access the control center.
           </p>
         </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            setEmail("innovex")
+            setPassword("innovex")
+          }}
+          className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl border border-emerald-500/30 bg-emerald-950/30 hover:bg-emerald-900/40 text-emerald-400 text-xs font-mono transition-colors shadow-sm"
+        >
+          <Sparkles className="size-3.5" />
+          Auto-fill Credentials (innovex / innovex)
+        </button>
 
         {error ? (
           <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive font-mono text-center">
