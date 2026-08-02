@@ -84,25 +84,6 @@ export function LoginForm({
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 my-2">
-          <button
-            type="button"
-            onClick={() => { setEmail("admin@nexpod.ai"); setPassword("admin123"); }}
-            className="flex flex-col items-center justify-center p-2.5 rounded-lg border border-cyan-500/30 bg-cyan-950/30 hover:bg-cyan-900/40 text-cyan-400 text-xs transition-colors"
-          >
-            <span className="font-bold uppercase tracking-wider">Admin Role</span>
-            <span className="text-[10px] text-muted-foreground">admin@nexpod.ai</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => { setEmail("customer@nexpod.ai"); setPassword("customer123"); }}
-            className="flex flex-col items-center justify-center p-2.5 rounded-lg border border-purple-500/30 bg-purple-950/30 hover:bg-purple-900/40 text-purple-400 text-xs transition-colors"
-          >
-            <span className="font-bold uppercase tracking-wider">Customer Role</span>
-            <span className="text-[10px] text-muted-foreground">customer@nexpod.ai</span>
-          </button>
-        </div>
-
         {error ? (
           <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
             {error}

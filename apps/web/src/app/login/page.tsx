@@ -2,16 +2,41 @@
 
 import { Suspense } from "react"
 import { LoginForm } from "@/components/login-form"
-import { Terminal, ShieldCheck, Activity } from "lucide-react"
+import { Globe } from "@/components/ui/globe"
+import { Terminal } from "lucide-react"
+
+const customGlobeConfig = {
+  width: 600,
+  height: 600,
+  onRender: () => {},
+  devicePixelRatio: 2,
+  phi: 0,
+  theta: 0.3,
+  dark: 1,
+  diffuse: 1.2,
+  mapSamples: 12000,
+  mapBrightness: 6,
+  baseColor: [0.1, 0.1, 0.1] as [number, number, number],
+  markerColor: [16 / 255, 185 / 255, 129 / 255] as [number, number, number],
+  glowColor: [16 / 255, 185 / 255, 129 / 255] as [number, number, number],
+  markers: [
+    { location: [19.076, 72.8777] as [number, number], size: 0.1 }, // Mumbai, India
+    { location: [1.3521, 103.8198] as [number, number], size: 0.08 }, // Singapore
+    { location: [25.2048, 55.2708] as [number, number], size: 0.09 }, // Dubai
+    { location: [51.5074, -0.1278] as [number, number], size: 0.08 }, // London
+    { location: [40.7128, -74.006] as [number, number], size: 0.1 }, // New York
+    { location: [35.6762, 139.6503] as [number, number], size: 0.08 }, // Tokyo
+  ],
+}
 
 function LoginPageContent() {
   return (
-    <div className="grid min-h-svh lg:grid-cols-2 bg-[#090D16] text-white selection:bg-cyan-500 selection:text-black">
+    <div className="grid min-h-svh lg:grid-cols-2 bg-[#090D16] text-white selection:bg-emerald-500 selection:text-black">
       {/* Left Column - Form Container */}
-      <div className="flex flex-col gap-4 p-6 sm:p-10 justify-between">
+      <div className="flex flex-col gap-4 p-6 sm:p-10 justify-between z-10">
         <div className="flex justify-between items-center">
-          <a href="/" className="flex items-center gap-2 font-mono text-sm font-bold text-cyan-400">
-            <div className="flex size-7 items-center justify-center rounded-lg border border-cyan-500/30 bg-cyan-500/10">
+          <a href="/" className="flex items-center gap-2 font-mono text-sm font-bold text-emerald-400">
+            <div className="flex size-7 items-center justify-center rounded-lg border border-emerald-500/30 bg-emerald-500/10">
               <Terminal className="size-4" />
             </div>
             NexPod AI OS
@@ -29,39 +54,14 @@ function LoginPageContent() {
         </div>
       </div>
 
-      {/* Right Column - Hero Visual */}
-      <div className="relative hidden bg-slate-950 lg:flex flex-col justify-between p-12 overflow-hidden border-l border-slate-800/60">
-        <div className="absolute top-1/3 right-1/4 w-[400px] h-[400px] bg-cyan-500/10 blur-[130px] rounded-full pointer-events-none" />
-        <div className="absolute bottom-10 left-10 w-[300px] h-[300px] bg-indigo-500/10 blur-[100px] rounded-full pointer-events-none" />
+      {/* Right Column - Spinning Globe Only */}
+      <div className="relative hidden lg:flex items-center justify-center overflow-hidden border-l border-slate-800/60 bg-[#090D16]">
+        {/* Ambient Glowing Spotlights matching landing page vibe */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-emerald-500/10 blur-[140px] rounded-full pointer-events-none" />
+        <div className="absolute top-1/4 right-1/4 w-[350px] h-[350px] bg-cyan-500/10 blur-[100px] rounded-full pointer-events-none" />
 
-        <div className="relative z-10 flex items-center gap-2 text-xs font-mono text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-3 py-1.5 rounded-full w-fit">
-          <Activity className="size-3.5 animate-pulse" />
-          <span>Real-time Telemetry Engine Connected</span>
-        </div>
-
-        <div className="relative z-10 space-y-4 my-auto max-w-lg">
-          <h2 className="text-3xl font-extrabold tracking-tight leading-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
-            Autonomous Fleet Mission Control & Telemetry Twin
-          </h2>
-          <p className="text-sm text-slate-400 leading-relaxed">
-            Monitor water pressure, boiler thermals, and AI-driven predictive dispatches in real-time across your self-service retail pod network.
-          </p>
-
-          <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-800/80">
-            <div className="p-3.5 rounded-xl border border-slate-800 bg-slate-900/60 backdrop-blur-sm">
-              <span className="text-xs font-mono uppercase text-slate-400 block">Fleet Uptime</span>
-              <span className="text-xl font-bold font-mono text-emerald-400">99.85%</span>
-            </div>
-            <div className="p-3.5 rounded-xl border border-slate-800 bg-slate-900/60 backdrop-blur-sm">
-              <span className="text-xs font-mono uppercase text-slate-400 block">AI Dispatches</span>
-              <span className="text-xl font-bold font-mono text-cyan-400">Active</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="relative z-10 flex items-center justify-between text-xs text-slate-500 font-mono pt-6 border-t border-slate-800/60">
-          <span>Google Gemini & FastAPI Powered</span>
-          <span className="flex items-center gap-1 text-slate-400"><ShieldCheck className="size-3.5 text-cyan-400" /> Secure Token Authentication</span>
+        <div className="relative w-[600px] h-[600px] flex items-center justify-center">
+          <Globe config={customGlobeConfig} className="w-full h-full" />
         </div>
       </div>
     </div>
