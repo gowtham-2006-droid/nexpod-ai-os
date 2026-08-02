@@ -301,7 +301,7 @@ function ChatPanel({
 export default function AIChatSidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [orbState, setOrbState] = useState<OrbState>('listening');
+  const [orbState, setOrbState] = useState<OrbState>('composing');
 
   useEffect(() => {
     setMounted(true);
