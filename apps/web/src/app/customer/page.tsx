@@ -24,6 +24,10 @@ const mapMenuToSku = (name: string, category: string): string => {
   return 'water';
 };
 
+const GUEST_NAMES = [
+  "Aarav S.", "Priya M.", "Rahul K.", "Ananya G.", "Kabir V.", "Sneha R.", "Vikram P.", "Ishaan K.", "Rohan S.", "Pooja N."
+];
+
 export default function CustomerApp() {
   const [step, setStep] = useState<FlowStep>('home');
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -50,11 +54,12 @@ export default function CustomerApp() {
     try {
       setPaymentError(null);
       let lastCreatedOrderId = '';
+      const guestName = GUEST_NAMES[Math.floor(Math.random() * GUEST_NAMES.length)];
       
       // Dispatch each item in the cart to the FastAPI server
       for (const item of cart) {
         const sku = mapMenuToSku(item.name, item.category);
-        const res = await api.createOrder('pod-001', sku, item.quantity);
+        const res = await api.createOrder('pod-001', sku, item.quantity, guestName);
         if (res && res.id) {
           lastCreatedOrderId = res.id;
         }

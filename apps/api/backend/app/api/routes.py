@@ -73,7 +73,7 @@ def orders(limit: int = Query(100, ge=1, le=500)):
 @router.post("/orders", status_code=201)
 def create_order(request: CreateOrderRequest):
     try:
-        order = runtime_service.create_order(request.pod_id, request.sku, request.quantity)
+        order = runtime_service.create_order(request.pod_id, request.sku, request.quantity, customer_name=request.customer_name)
         d = asdict(order)
         d["lines"] = {
             "items": [{"sku": sku, "quantity": qty} for sku, qty in order.lines]

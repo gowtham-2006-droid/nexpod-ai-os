@@ -288,10 +288,10 @@ export const api = {
   getIntelligence: () => request<IntelligenceInsight>('/api/intelligence'),
   getDailyReport: () => request<DailyReportData>('/api/reports/daily'),
   
-  createOrder: (podId: string, sku: string, quantity: number) =>
+  createOrder: (podId: string, sku: string, quantity: number, customerName?: string) =>
     request<OrderItem>('/api/orders', {
       method: 'POST',
-      body: JSON.stringify({ pod_id: podId, sku, quantity }),
+      body: JSON.stringify({ pod_id: podId, sku, quantity, customer_name: customerName }),
     }),
     
   replenishInventory: (podId: string, sku?: string) =>
