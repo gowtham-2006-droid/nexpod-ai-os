@@ -256,12 +256,10 @@ class PodRuntimeEngine:
     @staticmethod
     def _default_pods() -> tuple[PodSnapshot, ...]:
         inventory = (
-            InventoryItem("milk", "Whole Milk", 100, 100, 20, 30),
-            InventoryItem("water", "Spring Water", 100, 100, 20, 20),
-            InventoryItem("espresso-beans", "Espresso Beans", 100, 100, 15, 120),
-            InventoryItem("oat-milk", "Oat Milk", 100, 100, 15, 45),
-            InventoryItem("cold-brew", "Cold Brew", 100, 100, 15, 60),
-            InventoryItem("protein-bar", "Protein Bar", 100, 100, 15, 25),
+            InventoryItem("milk", "Whole Milk", 120, 80, 100, 20),
+            InventoryItem("water", "Spring Water", 40, 80, 96, 20),
+            InventoryItem("cold-brew", "Cold Brew", 180, 80, 100, 15),
+            InventoryItem("protein-bar", "Protein Bar", 95, 80, 100, 15),
         )
         health = MachineHealth(98, 5.5, 320, 45, True, True)
         return (PodSnapshot("pod-001", "NexPod Atrium", PodStatus.OPERATIONAL, inventory, health),)
