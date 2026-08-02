@@ -102,7 +102,7 @@ class PodRuntimeEngine:
             raise ValueError("limit must be at least 1")
         return tuple(reversed(self._orders[-limit:]))
 
-    def place_order(self, pod_id: str, sku: str, quantity: int = 1, customer_name: str | None = None) -> Order:
+    def place_order(self, pod_id: str, sku: str, quantity: int = 1) -> Order:
         """Runtime command used by backend APIs; inventory and revenue change together."""
         if quantity < 1:
             raise ValueError("quantity must be at least 1")
@@ -115,7 +115,7 @@ class PodRuntimeEngine:
         if item.quantity < quantity:
             raise ValueError(f"Insufficient stock for {sku}")
         pod.inventory[sku] = InventoryItem(**{**item.__dict__, "quantity": item.quantity - quantity})
-        customer = customer_name or self._rng.choice(_CUSTOMER_NAMES)
+        customer = self._rng.choice(_CUSTOMER_NAMES)
         payment = self._rng.choice(_PAYMENT_METHODS)
         status = self._rng.choice(_STATUS_OPTIONS)
         order = Order(

@@ -80,7 +80,6 @@ export default function OrdersPage() {
 
     return {
       id: order.id,
-      customer: order.customer || 'Walk-up Guest',
       product: productName,
       price: order.total_inr,
       status: (order.status || 'completed') as any,

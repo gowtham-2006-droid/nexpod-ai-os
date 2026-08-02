@@ -6,7 +6,6 @@ class CreateOrderRequest(BaseModel):
     pod_id: str = "pod-001"
     sku: str
     quantity: int = Field(default=1, ge=1, le=10)
-    customer_name: str | None = None
 
 
 class DashboardResponse(BaseModel):

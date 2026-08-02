@@ -56,9 +56,9 @@ class RuntimeService:
         self._persist(snapshot)
         return snapshot
 
-    def create_order(self, pod_id: str, sku: str, quantity: int, customer_name: str | None = None):
+    def create_order(self, pod_id: str, sku: str, quantity: int):
         with self._lock:
-            order = self.engine.place_order(pod_id, sku, quantity, customer_name=customer_name)
+            order = self.engine.place_order(pod_id, sku, quantity)
             snapshot = self.engine.get_snapshot()
             
             # If AI auto-reorder is enabled, check for low inventory and replenish

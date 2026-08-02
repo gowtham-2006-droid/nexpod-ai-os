@@ -16,7 +16,6 @@ export type PaymentMethod = 'UPI' | 'Card' | 'Cash';
 
 export interface Order {
   id: string;
-  customer: string;
   product: string;
   price: number;
   status: OrderStatus;
@@ -72,7 +71,7 @@ const filterTabs: { label: string; value: OrderStatus | 'all' }[] = [
   { label: 'Cancelled', value: 'cancelled' },
 ];
 
-type SortField = 'id' | 'customer' | 'product' | 'price' | 'time';
+type SortField = 'id' | 'product' | 'price' | 'time';
 type SortDir = 'asc' | 'desc';
 
 export const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
@@ -113,7 +112,6 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
       result = result.filter(
         (o) =>
           o.id.toLowerCase().includes(q) ||
-          o.customer.toLowerCase().includes(q) ||
           o.product.toLowerCase().includes(q)
       );
     }
@@ -141,7 +139,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-bodydark2" />
           <input
             type="text"
-            placeholder="Search orders, customers..."
+            placeholder="Search orders, products..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full bg-black/30 border border-strokedark rounded-lg pl-9 pr-4 py-2 text-sm text-white placeholder:text-bodydark2 focus:outline-none focus:border-primary/50 transition-colors font-mono"
@@ -180,7 +178,6 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
             <tr className="border-b border-strokedark text-left">
               {[
                 { label: 'Order ID', field: 'id' as SortField },
-                { label: 'Customer', field: 'customer' as SortField },
                 { label: 'Product', field: 'product' as SortField },
                 { label: 'Price', field: 'price' as SortField },
                 { label: 'Status', field: null },
@@ -205,7 +202,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
           <tbody>
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-5 py-12 text-center text-sm text-bodydark2 font-mono">
+                <td colSpan={6} className="px-5 py-12 text-center text-sm text-bodydark2 font-mono">
                   No orders match your search criteria.
                 </td>
               </tr>
@@ -227,11 +224,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({ orders }) => {
                         {order.id}
                       </span>
                     </td>
-                    <td className="px-5 py-4">
-                      <span className="text-sm font-semibold text-white">
-                        {order.customer}
-                      </span>
-                    </td>
+
                     <td className="px-5 py-4">
                       <span className="text-xs text-bodydark font-medium">
                         {order.product}
