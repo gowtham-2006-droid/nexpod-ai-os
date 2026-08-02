@@ -38,13 +38,17 @@ async def tick_loop():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Guarantee tables are created on database startup
+    # Guarantee tables are created and seeded on database startup
     factory = get_session_factory()
     if factory:
         try:
             Base.metadata.create_all(bind=factory.kw['bind'])
+            with factory() as session:
+                from .repositories.user_repository import UserRepository
+                UserRepository(session).seed_default_users()
+                logging.info("Successfully seeded admin & demo users into Supabase database.")
         except Exception as e:
-            logging.error(f"Auto-migration setup failed: {e}")
+            logging.error(f"Auto-migration & user seeding setup failed: {e}")
 
     # Fire off continuous simulation thread
     task = asyncio.create_task(tick_loop())

@@ -18,33 +18,61 @@ class LoginRequest(BaseModel):
     email: str
     password: str
 
+from ..database.session import get_session_factory
+
 @router.post("/auth/login")
 def login(request: LoginRequest):
     email = request.email.lower().strip()
     password = request.password
     
-    # Pre-seeded users for NexPod AI OS
-    seed_users = {
-        "innovex": {"id": "usr_admin_innovex", "role": "admin", "pass": hash_password("innovex")},
-        "innovex@nexpod.ai": {"id": "usr_admin_innovex", "role": "admin", "pass": hash_password("innovex")},
-        "admin@nexpod.ai": {"id": "usr_admin_01", "role": "admin", "pass": hash_password("admin123")},
-        "customer@nexpod.ai": {"id": "usr_cust_01", "role": "user", "pass": hash_password("customer123")}
-    }
-    
-    user_info = seed_users.get(email)
-    if not user_info or not verify_password(password, user_info["pass"]):
+    user_info = None
+
+    # 1. Check Supabase PostgreSQL database for admin/user credentials
+    factory = get_session_factory()
+    if factory:
+        try:
+            with factory() as session:
+                from ..repositories.user_repository import UserRepository
+                repo = UserRepository(session)
+                db_user = repo.get_by_email(email)
+                if db_user and db_user.password_hash and verify_password(password, db_user.password_hash):
+                    user_info = {
+                        "id": db_user.id,
+                        "email": db_user.email,
+                        "role": db_user.role,
+                    }
+        except Exception:
+            pass
+
+    # 2. In-memory fallback for local demo / unconfigured DB mode
+    if not user_info:
+        seed_users = {
+            "innovex": {"id": "usr_admin_innovex", "role": "admin", "pass": hash_password("innovex")},
+            "innovex@nexpod.ai": {"id": "usr_admin_innovex", "role": "admin", "pass": hash_password("innovex")},
+            "admin@nexpod.ai": {"id": "usr_admin_01", "role": "admin", "pass": hash_password("admin123")},
+            "customer@nexpod.ai": {"id": "usr_cust_01", "role": "user", "pass": hash_password("customer123")}
+        }
+        fallback = seed_users.get(email)
+        if fallback and verify_password(password, fallback["pass"]):
+            user_info = {
+                "id": fallback["id"],
+                "email": email,
+                "role": fallback["role"],
+            }
+            
+    if not user_info:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials. Use 'innovex' as login & password for Admin."
         )
     
-    token = create_access_token(user_info["id"], email, user_info["role"])
+    token = create_access_token(user_info["id"], user_info["email"], user_info["role"])
     return {
         "access_token": token,
         "token_type": "bearer",
         "user": {
             "id": user_info["id"],
-            "email": email,
+            "email": user_info["email"],
             "role": user_info["role"]
         }
     }
