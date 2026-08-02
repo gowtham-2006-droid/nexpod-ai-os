@@ -141,10 +141,13 @@ class PodRuntimeEngine:
         if sku:
             pod.inventory[sku] = InventoryItem(**{**item.__dict__, "quantity": item.capacity})
             self._resolve_alert(pod_id, f"inventory:{sku}")
+            if sku in ("milk", "oat-milk"):
+                self._resolve_alert(pod_id, "demo:milk-low")
         else:
             for item_sku, item in list(pod.inventory.items()):
                 pod.inventory[item_sku] = InventoryItem(**{**item.__dict__, "quantity": item.capacity})
                 self._resolve_alert(pod_id, f"inventory:{item_sku}")
+            self._resolve_alert(pod_id, "demo:milk-low")
         
         self._evaluate_alerts(pod)
         return self._pod_snapshot(pod)
@@ -256,10 +259,10 @@ class PodRuntimeEngine:
     @staticmethod
     def _default_pods() -> tuple[PodSnapshot, ...]:
         inventory = (
-            InventoryItem("milk", "Whole Milk", 120, 80, 100, 20),
+            InventoryItem("milk", "Whole Milk", 120, 180, 200, 25),
             InventoryItem("water", "Spring Water", 40, 80, 96, 20),
-            InventoryItem("cold-brew", "Cold Brew", 180, 80, 100, 15),
-            InventoryItem("protein-bar", "Protein Bar", 95, 80, 100, 15),
+            InventoryItem("cold-brew", "Cold Brew", 180, 180, 200, 15),
+            InventoryItem("protein-bar", "Protein Bar", 95, 95, 100, 15),
         )
         health = MachineHealth(98, 5.5, 320, 45, True, True)
         return (PodSnapshot("pod-001", "NexPod Atrium", PodStatus.OPERATIONAL, inventory, health),)
