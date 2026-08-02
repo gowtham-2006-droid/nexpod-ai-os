@@ -221,12 +221,10 @@ export default function LandingPage() {
           { label: 'Telemetry', ariaLabel: 'Go to Pod Telemetry', link: '/telemetry' },
           { label: 'Reports', ariaLabel: 'Go to Daily Reports', link: '/reports' },
           { label: 'Customer Kiosk', ariaLabel: 'Go to Customer Kiosk', link: '/customer' },
-          { label: 'Admin Login', ariaLabel: 'Sign in to Admin Console', link: '/login' },
           { label: 'Settings', ariaLabel: 'Go to Settings', link: '/settings' },
         ]}
         socialItems={[
           { label: 'GitHub', link: 'https://github.com/gowtham-2006-droid/nexpod-ai-os' },
-          { label: 'Admin Sign In', link: '/login' },
           { label: 'Owner Portal', link: '/dashboard' },
           { label: 'Kiosk App', link: '/customer' },
         ]}
@@ -343,12 +341,6 @@ export default function LandingPage() {
                     >
                       Customer App
                     </InteractiveHoverButton>
-                  </Link>
-
-                  <Link href="/login">
-                    <span className="text-xs font-mono text-cyan-400 hover:text-cyan-300 underline underline-offset-4 px-3 py-2 transition-colors">
-                      Admin Sign In →
-                    </span>
                   </Link>
                 </div>
             </div>
