@@ -25,6 +25,8 @@ def login(request: LoginRequest):
     
     # Pre-seeded users for NexPod AI OS
     seed_users = {
+        "innovex": {"id": "usr_admin_innovex", "role": "admin", "pass": hash_password("innovex")},
+        "innovex@nexpod.ai": {"id": "usr_admin_innovex", "role": "admin", "pass": hash_password("innovex")},
         "admin@nexpod.ai": {"id": "usr_admin_01", "role": "admin", "pass": hash_password("admin123")},
         "customer@nexpod.ai": {"id": "usr_cust_01", "role": "user", "pass": hash_password("customer123")}
     }
@@ -33,7 +35,7 @@ def login(request: LoginRequest):
     if not user_info or not verify_password(password, user_info["pass"]):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid email or password. Use admin@nexpod.ai (admin123) or customer@nexpod.ai (customer123)."
+            detail="Invalid credentials. Use 'innovex' as login & password for Admin."
         )
     
     token = create_access_token(user_info["id"], email, user_info["role"])
