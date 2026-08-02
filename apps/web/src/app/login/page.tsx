@@ -21,12 +21,21 @@ function LoginForm() {
     setError(null);
 
     try {
-      // In production or development, fetch from backend API
-      const res = await fetch("http://localhost:8000/api/auth/login", {
+      // Try relative API endpoint first (handled by Next.js rewrites or same-domain proxy)
+      let res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
-      });
+      }).catch(() => null);
+
+      if (!res || !res.ok) {
+        // Fallback to direct backend URL if proxy rewrite fails
+        res = await fetch("http://localhost:8000/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+      }
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));

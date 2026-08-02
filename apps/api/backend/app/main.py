@@ -58,8 +58,9 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.origin_list,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS"],
-    allow_headers=["*"]
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["*"]
 )
 app.include_router(router)
 app.include_router(ws_router)  # WebSocket telemetry gateway + /ws/status

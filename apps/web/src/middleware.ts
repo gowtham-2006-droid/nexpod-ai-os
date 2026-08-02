@@ -35,13 +35,21 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    '/dashboard',
     '/dashboard/:path*',
+    '/telemetry',
     '/telemetry/:path*',
+    '/intelligence',
     '/intelligence/:path*',
+    '/inventory',
     '/inventory/:path*',
+    '/diagnostics',
     '/diagnostics/:path*',
+    '/reports',
     '/reports/:path*',
+    '/settings',
     '/settings/:path*',
+    '/orders',
     '/orders/:path*',
   ],
 };
