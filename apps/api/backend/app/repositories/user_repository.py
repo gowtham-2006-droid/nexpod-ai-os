@@ -56,14 +56,24 @@ class UserRepository:
 
     def seed_default_users(self) -> None:
         """Seeds default admin and customer accounts into Supabase PostgreSQL if missing."""
+        from sqlalchemy import text
+        try:
+            self.session.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash text;"))
+            self.session.commit()
+        except Exception:
+            self.session.rollback()
+
         for u in DEFAULT_USERS:
-            existing = self.get_by_email(u["email"])
-            if not existing:
-                user = User(
-                    id=u["id"],
-                    email=u["email"],
-                    password_hash=u["password_hash"],
-                    role=u["role"],
-                )
-                self.session.merge(user)
-        self.session.commit()
+            try:
+                existing = self.get_by_email(u["email"])
+                if not existing:
+                    user = User(
+                        id=u["id"],
+                        email=u["email"],
+                        password_hash=u["password_hash"],
+                        role=u["role"],
+                    )
+                    self.session.merge(user)
+                    self.session.commit()
+            except Exception:
+                self.session.rollback()
