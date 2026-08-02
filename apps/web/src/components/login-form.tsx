@@ -50,7 +50,7 @@ export function LoginForm({
 
       if (!res || !res.ok) {
         // Fallback demo validation if server API is unavailable
-        const cleanEmail = email.toLowerCase().strip ? email.toLowerCase().strip() : email.toLowerCase().trim()
+        const cleanEmail = email.toLowerCase().trim()
         if ((cleanEmail === "innovex" || cleanEmail === "innovex@nexpod.ai" || cleanEmail === "admin@nexpod.ai") && password === "innovex") {
           const dummyUser = { id: "usr_admin_innovex", email: "innovex", role: "admin" as const }
           setSession("mock_admin_innovex_jwt", dummyUser)
