@@ -1,13 +1,61 @@
 from dataclasses import asdict
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends, status
 from fastapi.encoders import jsonable_encoder
+from pydantic import BaseModel
 from ..schemas.contracts import CreateOrderRequest, DashboardResponse
 from ..services.runtime_service import runtime_service
+from ..services.auth_service import (
+    create_access_token,
+    get_current_user,
+    require_role,
+    hash_password,
+    verify_password
+)
 
 router = APIRouter(prefix="/api", tags=["Pod Runtime"])
 
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+@router.post("/auth/login")
+def login(request: LoginRequest):
+    email = request.email.lower().strip()
+    password = request.password
+    
+    # Pre-seeded users for NexPod AI OS
+    seed_users = {
+        "admin@nexpod.ai": {"id": "usr_admin_01", "role": "admin", "pass": hash_password("admin123")},
+        "customer@nexpod.ai": {"id": "usr_cust_01", "role": "user", "pass": hash_password("customer123")}
+    }
+    
+    user_info = seed_users.get(email)
+    if not user_info or not verify_password(password, user_info["pass"]):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password. Use admin@nexpod.ai (admin123) or customer@nexpod.ai (customer123)."
+        )
+    
+    token = create_access_token(user_info["id"], email, user_info["role"])
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": {
+            "id": user_info["id"],
+            "email": email,
+            "role": user_info["role"]
+        }
+    }
+
+@router.get("/auth/me")
+def get_me(user: dict = Depends(get_current_user)):
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+    return {"user": user}
+
 @router.get("/dashboard", response_model=DashboardResponse)
 def dashboard(): return runtime_service.dashboard()
+
 
 @router.get("/orders")
 def orders(limit: int = Query(100, ge=1, le=500)):

@@ -8,7 +8,9 @@ class User(Base):
     __tablename__ = "users"
     id: Mapped[str] = mapped_column(String, primary_key=True)
     email: Mapped[str] = mapped_column(String, unique=True)
-    role: Mapped[str] = mapped_column(String, default="owner")
+    password_hash: Mapped[str] = mapped_column(String, nullable=True)
+    role: Mapped[str] = mapped_column(String, default="user")
+
 
 
 class Pod(Base):
