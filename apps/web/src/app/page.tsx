@@ -117,13 +117,28 @@ export default function LandingPage() {
         onClick: () => {
           localStorage.setItem('nexpod_judge_onboarding', 'true');
           setShowOnboarding(false);
-          router.push('/dashboard');
+          const role = localStorage.getItem('nexpod_user_role');
+          const token = localStorage.getItem('nexpod_auth_token');
+          if (token && role === 'admin') {
+            router.push('/dashboard');
+          } else {
+            router.push('/login?redirect=/dashboard');
+          }
         }
       }
     }
   ];
 
   const handleLaunchDashboardClick = (e: React.MouseEvent) => {
+    const role = typeof window !== 'undefined' ? localStorage.getItem('nexpod_user_role') : null;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('nexpod_auth_token') : null;
+
+    if (!token || role !== 'admin') {
+      e.preventDefault();
+      router.push('/login?redirect=/dashboard');
+      return;
+    }
+
     const dismissed = localStorage.getItem('nexpod_judge_onboarding');
     if (!dismissed) {
       e.preventDefault();
@@ -326,7 +341,7 @@ export default function LandingPage() {
 
                 {/* Buttons */}
                 <div className="flex flex-col sm:flex-row items-center gap-4 pt-2">
-                  <Link href="/dashboard" onClick={handleLaunchDashboardClick}>
+                  <Link href="/login?redirect=/dashboard" onClick={handleLaunchDashboardClick}>
                     <HoverBorderGradient
                       containerClassName="rounded-xl border border-foreground/10 shadow-[0_0_25px_rgba(0,0,0,0.08)] dark:shadow-[0_0_25px_rgba(255,255,255,0.08)]"
                       className="text-xs sm:text-sm md:text-base font-bold font-mono px-7 sm:px-8 py-3.5 sm:py-4 bg-foreground text-background"
