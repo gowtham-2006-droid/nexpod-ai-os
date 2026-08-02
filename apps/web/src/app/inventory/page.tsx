@@ -64,6 +64,8 @@ export default function InventoryPage() {
     type: 'success',
   });
 
+  const [activeAlerts, setActiveAlerts] = useState<any[]>([]);
+
   const fetchInventory = async () => {
     try {
       const dashboard = await api.getDashboard();
@@ -72,6 +74,9 @@ export default function InventoryPage() {
       
       setNotifications(dashboard.alerts);
       setHealthScore(dashboard.inventoryHealth);
+      if (intel.context?.active_alerts) {
+        setActiveAlerts(intel.context.active_alerts);
+      }
 
       if (res.pods && res.pods[0]) {
         const rawItems = res.pods[0].inventory;
@@ -149,6 +154,11 @@ export default function InventoryPage() {
           : item
       )
     );
+    // Optimistically clear milk alert from Header active alerts
+    if (sku === 'milk' || sku === 'oat-milk') {
+      setActiveAlerts((prev) => prev.filter((a) => !a.code.includes('milk')));
+      setNotifications((prev) => Math.max(0, prev - 1));
+    }
 
     triggerAction('Replenishment Dispatched', `Replenished ${name} tanks to 100% capacity via pneumatic delivery drone.`);
 
@@ -171,6 +181,7 @@ export default function InventoryPage() {
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
           notifications={notifications}
+          activeAlerts={activeAlerts}
           triggerAction={triggerAction}
         />
 

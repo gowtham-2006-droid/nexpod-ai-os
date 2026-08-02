@@ -11,11 +11,19 @@ import {
   Moon,
 } from 'lucide-react';
 
+export interface HeaderAlertItem {
+  id: string;
+  severity: string;
+  code: string;
+  message: string;
+}
+
 interface HeaderProps {
   sidebarOpen: boolean;
   setSidebarOpen: (arg: boolean) => void;
   notifications: number;
   triggerAction: (actionName: string, detail: string) => void;
+  activeAlerts?: HeaderAlertItem[];
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -23,10 +31,13 @@ export const Header: React.FC<HeaderProps> = ({
   setSidebarOpen,
   notifications,
   triggerAction,
+  activeAlerts,
 }) => {
   const [notifOpen, setNotifOpen] = useState(false);
   const [logsOpen, setLogsOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
+
+  const displayCount = activeAlerts ? activeAlerts.length : notifications;
 
   return (
     <header className="sticky top-0 z-999 flex w-full bg-card border-b border-border relative">
@@ -114,7 +125,7 @@ export const Header: React.FC<HeaderProps> = ({
                   </div>
                   <div className="space-y-2.5 max-h-[220px] overflow-y-auto">
                     <div className="text-[11px] font-mono leading-relaxed border-b border-strokedark pb-2">
-                      <span className="text-chart-4">[14:28:12]</span> Milk Warning - Level dropped below 45% threshold
+                      <span className="text-chart-2">[14:28:12]</span> Inventory Telemetry - Real-time sync operational
                     </div>
                     <div className="text-[11px] font-mono leading-relaxed border-b border-strokedark pb-2">
                       <span className="text-chart-2">[13:52:01]</span> Heating Unit - Temperature stabilized at 93.5°C
@@ -145,9 +156,9 @@ export const Header: React.FC<HeaderProps> = ({
                 }}
                 className="relative flex h-8.5 w-8.5 items-center justify-center rounded-full border border-border bg-secondary hover:text-foreground text-muted-foreground"
               >
-                {notifications > 0 && (
+                {displayCount > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 z-1 h-2.5 w-2.5 rounded-full bg-destructive flex items-center justify-center text-[7px] text-white font-bold">
-                    {notifications}
+                    {displayCount}
                   </span>
                 )}
                 <Bell className="h-4 w-4" />
@@ -157,18 +168,22 @@ export const Header: React.FC<HeaderProps> = ({
                 <div className="absolute right-0 mt-2.5 w-80 rounded-2xl border border-strokedark bg-boxdark p-4 shadow-lg z-50 text-left font-sans">
                   <div className="flex justify-between items-center mb-3">
                     <h4 className="text-xs font-bold font-mono text-bodydark2 uppercase tracking-wider">Alert Notifications</h4>
-                    <span className="text-[10px] font-mono text-meta-1 font-semibold">{notifications} Pending</span>
+                    <span className="text-[10px] font-mono text-meta-1 font-semibold">{displayCount} Pending</span>
                   </div>
                   <div className="space-y-2.5 max-h-[220px] overflow-y-auto">
-                    {notifications > 0 ? (
-                      <>
-                        <div className="text-[11px] leading-relaxed border-b border-strokedark pb-2 font-mono text-bodydark">
-                          <span className="text-meta-1 font-bold">⚠️ CRITICAL:</span> Milk inventory is depleted.
+                    {activeAlerts && activeAlerts.length > 0 ? (
+                      activeAlerts.map((alert) => (
+                        <div key={alert.id} className="text-[11px] leading-relaxed border-b border-strokedark pb-2 font-mono text-bodydark">
+                          <span className={alert.severity === 'critical' ? "text-meta-1 font-bold" : "text-chart-4 font-bold"}>
+                            ⚠️ {alert.severity.toUpperCase()}:
+                          </span>{' '}
+                          {alert.message}
                         </div>
-                        <div className="text-[11px] leading-relaxed pb-1 font-mono text-bodydark">
-                          <span className="text-chart-4 font-bold">⚠️ WARNING:</span> Boiler element heat cycle is elevated.
-                        </div>
-                      </>
+                      ))
+                    ) : displayCount > 0 ? (
+                      <div className="text-[11px] leading-relaxed border-b border-strokedark pb-2 font-mono text-bodydark">
+                        <span className="text-chart-4 font-bold">⚠️ NOTICE:</span> System telemetry active.
+                      </div>
                     ) : (
                       <div className="text-xs text-bodydark2 py-4 text-center">
                         All systems nominal. No pending warnings.
