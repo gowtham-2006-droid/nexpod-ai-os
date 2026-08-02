@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The Pod Runtime Engine is a headless, in-memory simulation service for NexPod AI OS. It advances a fleet of autonomous pods through simulated time and exposes the resulting operational state for any later dashboard, API, scheduler, or automation layer.
+The Pod Runtime Engine is a headless, in-memory simulation service for NexPod AI OS. It advances a fleet of autonomous pods through simulated time and exposes the resulting operational state for any later dashboard, API, scheduler, or automation layer. 
 
 It deliberately contains no UI and no transport binding. A web dashboard can poll snapshots, while a WebSocket or message-bus adapter can forward runtime events without changing the simulation core.
 
